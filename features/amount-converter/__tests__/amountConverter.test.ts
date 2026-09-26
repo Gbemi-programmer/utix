@@ -81,3 +81,12 @@ describe("round trip", () => {
     expect(convertFromStroops(fromAmount.value.stroops)).toEqual({ ok: true, value: fromAmount.value });
   });
 });
+
+describe("locale-dependent separators", () => {
+  it.each(["1,5", "1.234,5", "1,234.5", "1 234.5"])(
+    "rejects %j instead of guessing which separator is the decimal",
+    (raw) => {
+      expect(convertFromAmount(raw)).toEqual({ ok: false, code: "grouping_separator" });
+    }
+  );
+});

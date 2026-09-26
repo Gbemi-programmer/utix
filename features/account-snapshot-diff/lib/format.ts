@@ -1,3 +1,4 @@
+import { formatAmount } from "@/core/format/amount";
 import type {
   ChangeFilter,
   SectionFilter,
@@ -5,26 +6,11 @@ import type {
   SnapshotSection
 } from "@/features/account-snapshot-diff/types";
 
-/**
- * Formats a Stellar amount without going through `Number`.
- *
- * Trailing zeros are trimmed for readability, but nothing is rounded: the
- * digits shown are the digits in the snapshot.
- */
-export function formatAmount(value: string): string {
-  const negative = value.startsWith("-");
-  const unsigned = negative ? value.slice(1) : value;
-  const [whole, fraction = ""] = unsigned.split(".");
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const trimmed = fraction.replace(/0+$/, "");
-
-  return `${negative ? "-" : ""}${trimmed ? `${grouped}.${trimmed}` : grouped}`;
-}
+export { formatAmount };
 
 /** A delta always carries its sign, so a decrease is never mistaken for a total. */
 export function formatDelta(delta: string): string {
-  const formatted = formatAmount(delta);
-  return formatted.startsWith("-") ? formatted : `+${formatted}`;
+  return formatAmount(delta, { signed: true });
 }
 
 /** An absent field is an em dash; an empty string says so explicitly. */

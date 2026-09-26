@@ -17,11 +17,16 @@ scripts/     registry generation, scaffolding, contract verification
 | `core/result` | `Result<T, Code>` — the shared success/failure shape |
 | `core/telemetry` | Structured, redacted logs for every critical path |
 | `core/workers` | Background worker framework: delayed, retryable, dead-lettered jobs |
+| `core/lifecycle` | Record state machines: declared states, legal transitions, rejected moves |
+| `core/idempotency` | Idempotency keys, persisted outcomes and replay protection |
+| `core/reconciliation` | Read-only dry-run reconciliation of stored records against derived state |
+| `core/audit` | Append-only audit trail for sensitive user and maintainer actions |
 | `core/export` | Privacy-safe, scoped, schema-versioned data exports |
 | `core/contract` | API contract schemas and drift detection |
 | `core/network` | Network selection, URLs, passphrases, `NetworkProvider` |
 | `core/horizon` | Memoised Horizon client and the shared error taxonomy |
 | `core/rpc` | Minimal Soroban JSON-RPC caller |
+| `core/format` | Stellar amount parsing/formatting and date formatting, locale-aware and exact |
 | `core/registry` | Feature manifest types and the generated registry |
 | `core/ui` | Accessible primitives: `Field`, `StatusMessage`, `DataList`, … |
 | `core/layout` | App shell, header, sidebar |
@@ -106,13 +111,18 @@ module would test the mock instead of the code.
 ## Quality gates
 
 ```bash
-npm run check    # registry → lint → test → verify:features → verify:issues → verify:fixtures → build
+npm run check    # registry → lint → test → verify:* → fixtures → build
 ```
 
 CI runs the same steps on every pull request, including
 `npm run verify:features`, which fails a slice that does not meet the contract,
 `npm run verify:issues`, which preserves a backlog of at least 40
-independent specifications with a stable 20-issue advanced wave, and
+independent specifications with a stable 20-issue advanced wave,
+`npm run verify:reconciliation`, which fails if a declared invariant is never
+checked or if the dry run ever grows a write path,
+`npm run verify:audit`, which fails if a declared sensitive action has no
+emitter at a domain boundary, if a boundary records an undeclared one, or if the
+trail ever gains an update, a delete or an unredacted context, and
 `npm run verify:fixtures`, which imports every `features/*/fixtures/*.fixture.ts`
 file and fails with the specific file if a `@stellar/stellar-sdk` upgrade
 broke it.
@@ -129,3 +139,10 @@ it reports exactly which fixture file failed to import and why.
 
 See [ISSUE_PUBLISHING.md](./ISSUE_PUBLISHING.md) for the five-at-a-time
 GrantFox publication flow.
+
+## Decision records
+
+Why the architecture is shaped this way — slices, the generated registry,
+`Result` error codes, slice-local fixtures, the runtime contract ledger and
+shared formatting — is recorded in [adr/](./adr/README.md). Read the relevant
+record before proposing to change one of those decisions.

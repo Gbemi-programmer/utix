@@ -1,5 +1,6 @@
 import { err, ok, type Result } from "@/core/result/result";
 import { horizonServer } from "@/core/horizon/client";
+import { amountToStroops, stroopsToAmount } from "@/core/format/amount";
 import type { StellarNetwork } from "@/core/network/types";
 import { toTrustlineErrorCode } from "@/features/trustline-checker/lib/trustlineChecker.errors";
 import type {
@@ -17,20 +18,6 @@ interface CreditBalance {
   buying_liabilities?: string;
   is_authorized?: boolean;
   is_authorized_to_maintain_liabilities?: boolean;
-}
-
-const STROOPS_PER_UNIT = 10_000_000n;
-
-function amountToStroops(value: string): bigint {
-  if (!/^\d+(?:\.\d{1,7})?$/.test(value)) return 0n;
-  const [whole, fraction = ""] = value.split(".");
-  return BigInt(whole) * STROOPS_PER_UNIT + BigInt(fraction.padEnd(7, "0"));
-}
-
-function stroopsToAmount(value: bigint): string {
-  const whole = value / STROOPS_PER_UNIT;
-  const fraction = (value % STROOPS_PER_UNIT).toString().padStart(7, "0");
-  return `${whole}.${fraction}`;
 }
 
 /** Pure matcher, exported so the comparison rules can be tested directly. */
@@ -56,7 +43,8 @@ export function findTrustline(
     const balance = match.balance;
     const limit = match.limit ?? "0";
     const buyingLiabilities = match.buying_liabilities ?? "0.0000000";
-    const remaining = amountToStroops(limit) - amountToStroops(balance) - amountToStroops(buyingLiabilities);
+    const stroops = (value: string) => amountToStroops(value) ?? 0n;
+    const remaining = stroops(limit) - stroops(balance) - stroops(buyingLiabilities);
     return {
       exists: true,
       assetCode: match.asset_code ?? assetCode,

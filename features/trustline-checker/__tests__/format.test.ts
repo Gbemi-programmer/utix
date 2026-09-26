@@ -11,8 +11,9 @@ describe("formatLimit", () => {
     expect(formatLimit(MAX_LIMIT)).toMatch(/no practical limit/i);
   });
 
-  it("passes a real limit through unchanged", () => {
-    expect(formatLimit("1000.0000000")).toBe("1000.0000000");
+  it("formats a real limit as an amount without losing digits", () => {
+    expect(formatLimit("1000.0000000")).toBe("1,000");
+    expect(formatLimit("0.0000001")).toBe("0.0000001");
   });
 });
 

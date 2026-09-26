@@ -17,7 +17,7 @@ describe("stroopsToXlm", () => {
   });
 
   it("stays exact beyond the float safe range", () => {
-    expect(stroopsToXlm("9223372036854775807")).toBe("922337203685.4775807");
+    expect(stroopsToXlm("9223372036854775807")).toBe("922,337,203,685.4775807");
   });
 });
 
@@ -51,7 +51,7 @@ describe("formatMemo", () => {
 
 describe("formatTimestamp", () => {
   it("renders an ISO timestamp readably", () => {
-    expect(formatTimestamp("2026-05-02T10:14:05Z")).toBe("2026-05-02 10:14:05 UTC");
+    expect(formatTimestamp("2026-05-02T10:14:05Z")).toBe("May 2, 2026, 10:14:05 AM UTC");
   });
 
   it("passes an unparseable value through", () => {

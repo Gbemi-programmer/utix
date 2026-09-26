@@ -1,23 +1,12 @@
+import { formatAmount } from "@/core/format/amount";
 import type {
   SponsoredEntry,
   SponsoredEntryKind
 } from "@/features/sponsored-reserves/types";
 
-const STROOPS_PER_XLM = 10_000_000n;
-
-/** Formats stroops exactly, without converting through Number. */
+/** Formats stroops as XLM exactly, in the user's locale, without converting through Number. */
 export function formatStroops(stroops: string, showPositiveSign = false): string {
-  const amount = BigInt(stroops);
-  const negative = amount < 0n;
-  const absolute = negative ? -amount : amount;
-  const whole = absolute / STROOPS_PER_XLM;
-  const fraction = (absolute % STROOPS_PER_XLM)
-    .toString()
-    .padStart(7, "0")
-    .replace(/0+$/, "");
-  const sign = negative ? "-" : showPositiveSign && amount > 0n ? "+" : "";
-
-  return `${sign}${whole}${fraction ? `.${fraction}` : ""}`;
+  return formatAmount(BigInt(stroops), { signed: showPositiveSign });
 }
 
 export function formatEntryReference(entry: SponsoredEntry): string {

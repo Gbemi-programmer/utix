@@ -1,4 +1,7 @@
+import { formatAmount as formatLocaleAmount } from "@/core/format/amount";
 import type { OperationParam, OperationSummary } from "@/features/operation-browser/types";
+
+export { formatDateTime as formatTimestamp } from "@/core/format/date";
 
 const OPERATION_LABELS: Record<string, string> = {
   create_account: "Create account",
@@ -64,12 +67,6 @@ export function formatOperationType(type: string): string {
   return OPERATION_LABELS[type] ?? type.replace(/_/g, " ");
 }
 
-/** ISO-8601 from Horizon, rendered in a stable UTC string. */
-export function formatTimestamp(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? iso : date.toISOString().replace("T", " ").replace(".000Z", " UTC");
-}
-
 function humanizeField(key: string): string {
   return key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
@@ -86,7 +83,7 @@ function formatAsset(record: Record<string, unknown>): string {
 }
 
 function formatAmount(amount: unknown, assetLabel: string): string {
-  return `${String(amount ?? "0")} ${assetLabel}`;
+  return `${formatLocaleAmount(String(amount ?? "0"))} ${assetLabel}`;
 }
 
 function pushParam(params: OperationParam[], label: string, value: unknown): void {
@@ -148,7 +145,7 @@ export function extractOperationParams(record: Record<string, unknown>): Operati
     case "create_passive_sell_offer":
       pushParam(params, "Offer action", record.offer_id === 0 ? "Create offer" : `Update offer ${record.offer_id}`);
       pushParam(params, "Asset", asset);
-      pushParam(params, "Amount", record.amount);
+      pushParam(params, "Amount", formatLocaleAmount(String(record.amount ?? "")));
       pushParam(params, "Price", record.price);
       break;
     case "change_trust":

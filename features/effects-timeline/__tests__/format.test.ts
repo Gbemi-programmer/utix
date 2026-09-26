@@ -7,23 +7,9 @@ import {
   formatCanonicalAsset,
   formatEffectType,
   formatIdentifier,
-  formatTimestamp,
-  toStroops
+  formatTimestamp
 } from "@/features/effects-timeline/lib/format";
 import { issuer } from "@/features/effects-timeline/fixtures/effectsTimeline.fixture";
-
-describe("toStroops", () => {
-  it("converts without touching a float", () => {
-    expect(toStroops("1")).toBe(10_000_000n);
-    expect(toStroops("0.0000001")).toBe(1n);
-    expect(toStroops("1.23")).toBe(12_300_000n);
-    expect(toStroops("-2.5")).toBe(-25_000_000n);
-  });
-
-  it("stays exact at the int64 ceiling, where Number cannot", () => {
-    expect(toStroops("922337203685.4775807")).toBe(9_223_372_036_854_775_807n);
-  });
-});
 
 describe("formatAmount", () => {
   it("groups thousands and drops trailing zeros", () => {
@@ -94,8 +80,8 @@ describe("formatIdentifier", () => {
 });
 
 describe("formatTimestamp", () => {
-  it("renders Horizon's ISO timestamp as readable UTC", () => {
-    expect(formatTimestamp("2026-04-01T00:00:50.000Z")).toBe("2026-04-01 00:00:50 UTC");
+  it("renders Horizon's ISO timestamp in the user's locale, in UTC", () => {
+    expect(formatTimestamp("2026-04-01T00:00:50.000Z")).toBe("Apr 1, 2026, 12:00:50 AM UTC");
   });
 
   it("returns an unparseable timestamp verbatim", () => {

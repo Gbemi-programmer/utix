@@ -4,9 +4,7 @@ import {
   balanceKey,
   diffSnapshots,
   flattenSnapshot,
-  fromStroops,
   toJsonSummary,
-  toStroops,
   unsupportedFieldsIn
 } from "@/features/account-snapshot-diff/lib/accountSnapshotDiff";
 import { parseSnapshotInput } from "@/features/account-snapshot-diff/schema";
@@ -57,24 +55,18 @@ const changed = (summary: SnapshotDiff): SnapshotChange[] =>
 const find = (summary: SnapshotDiff, key: string, field: string) =>
   summary.changes.find((change) => change.key === key && change.field === field);
 
-describe("toStroops and fromStroops", () => {
-  it("round-trip an amount exactly", () => {
-    expect(fromStroops(toStroops("100.5000000"))).toBe("100.5000000");
-    expect(fromStroops(toStroops("0.0000001"))).toBe("0.0000001");
-  });
-
-  it("survive values past Number.MAX_SAFE_INTEGER", () => {
+describe("amountDelta", () => {
+  it("survives values past Number.MAX_SAFE_INTEGER", () => {
     // These two amounts differ by one stroop, and `Number` collapses both to
     // the same float — which is exactly why nothing here goes through it.
     expect(Number(HUGE_BEFORE)).toBe(Number(HUGE_AFTER));
-    expect(HUGE_BEFORE).not.toBe(HUGE_AFTER);
-
-    expect(fromStroops(toStroops(HUGE_BEFORE))).toBe(HUGE_BEFORE);
-    expect(toStroops(HUGE_AFTER) - toStroops(HUGE_BEFORE)).toBe(1n);
+    expect(amountDelta(HUGE_BEFORE, HUGE_AFTER)).toBe("0.0000001");
   });
 
-  it("handle negative amounts", () => {
-    expect(fromStroops(toStroops("-1.5000000"))).toBe("-1.5000000");
+  it("handles negative results and non-amounts", () => {
+    expect(amountDelta("2.5000000", "1.0000000")).toBe("-1.5000000");
+    expect(amountDelta("abc", "1.0000000")).toBeNull();
+    expect(amountDelta(null, "1.0000000")).toBeNull();
   });
 });
 

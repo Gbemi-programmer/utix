@@ -101,7 +101,7 @@ export const claimableBalancesFixture: ClaimableBalancesResult = {
             ]
           },
           predicateText:
-            "not (before 2027-01-01 00:00:00 UTC) and within 1 day after the balance was created or from 2026-01-01 00:00:00 UTC onward",
+            "not (before Jan 1, 2027, 12:00:00 AM UTC) and within 1 day after the balance was created or from Jan 1, 2026, 12:00:00 AM UTC onward",
           claimableNow: true
         }
       ]

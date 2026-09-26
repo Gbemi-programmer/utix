@@ -1,5 +1,6 @@
 import { StrKey } from "@stellar/stellar-sdk";
 import { err, ok, type Result } from "@/core/result/result";
+import { amountToStroops, stroopsToAmount } from "@/core/format/amount";
 import type {
   ChangeType,
   SnapshotChange,
@@ -9,7 +10,6 @@ import type {
   SnapshotSection
 } from "@/features/account-snapshot-diff/types";
 
-const STROOPS_PER_UNIT = 10_000_000n;
 
 /** Fields whose values are Stellar amounts and therefore get an exact delta. */
 const AMOUNT_FIELDS = new Set([
@@ -54,39 +54,18 @@ type Json = Record<string, unknown>;
 type FlatMap = Map<string, { section: SnapshotSection; key: string; field: string; value: string }>;
 
 /**
- * Converts a Stellar amount to stroops without going through `Number`.
+ * Signed difference between two amounts, or `null` when either is not one.
  *
- * Balances have 7 decimal places and can exceed the safe integer range, so a
- * float subtraction would silently lose the smallest movements — exactly the
- * ones worth investigating.
+ * Computed in stroops: balances can exceed the safe integer range, so a float
+ * subtraction would silently lose the smallest movements — exactly the ones
+ * worth investigating.
  */
-export function toStroops(amount: string): bigint {
-  const negative = amount.startsWith("-");
-  const unsigned = negative ? amount.slice(1) : amount;
-  const [whole, fraction = ""] = unsigned.split(".");
-  const stroops =
-    BigInt(whole || "0") * STROOPS_PER_UNIT + BigInt(fraction.padEnd(7, "0").slice(0, 7));
-
-  return negative ? -stroops : stroops;
-}
-
-export function fromStroops(stroops: bigint): string {
-  const negative = stroops < 0n;
-  const absolute = negative ? -stroops : stroops;
-  const whole = absolute / STROOPS_PER_UNIT;
-  const fraction = (absolute % STROOPS_PER_UNIT).toString().padStart(7, "0");
-
-  return `${negative ? "-" : ""}${whole}.${fraction}`;
-}
-
-const AMOUNT_SHAPE = /^-?\d+(\.\d+)?$/;
-
-/** Signed difference between two amounts, or `null` when either is not one. */
 export function amountDelta(before: string | null, after: string | null): string | null {
   if (before === null || after === null) return null;
-  if (!AMOUNT_SHAPE.test(before) || !AMOUNT_SHAPE.test(after)) return null;
 
-  return fromStroops(toStroops(after) - toStroops(before));
+  const from = amountToStroops(before);
+  const to = amountToStroops(after);
+  return from === null || to === null ? null : stroopsToAmount(to - from);
 }
 
 /**

@@ -110,3 +110,68 @@ describe("NotificationStore", () => {
     expect(store.list(account).map((notification) => notification.dedupeKey)).toEqual(["event:2", "event:1"]);
   });
 });
+
+describe("NotificationStore lifecycle", () => {
+  const input = {
+    recipient: account,
+    event: "failure" as const,
+    tone: "error" as const,
+    title: "Needs attention",
+    message: "Try again",
+    href: "/tools/operation-browser",
+    dedupeKey: "failure:1"
+  };
+
+  it("derives the read flag from the lifecycle state, not a second source", () => {
+    const store = new NotificationStore(new TestStorage());
+    const created = store.publish(input)!;
+
+    expect(created.state).toBe("unread");
+    expect(created.read).toBe(false);
+
+    const marked = store.markRead(account, created.id)!;
+    expect(marked.state).toBe("read");
+    expect(marked.read).toBe(true);
+    expect(store.list(account)[0]).toMatchObject({ state: "read", read: true });
+  });
+
+  it("refuses a second read transition instead of rewriting the record", () => {
+    const store = new NotificationStore(new TestStorage());
+    const created = store.publish(input)!;
+    expect(store.markRead(account, created.id)).not.toBeNull();
+
+    // `read` is terminal for that move: a double click must not re-fire.
+    expect(store.markRead(account, created.id)).toBeNull();
+    expect(store.list(account)).toHaveLength(1);
+  });
+
+  it("migrates an entry stored before the state field existed", () => {
+    const storage = new TestStorage();
+    const legacy = new NotificationStore(storage);
+    legacy.publish(input);
+    const key = `utix:notifications:v1:${account}`;
+    const stored = JSON.parse(storage.getItem(key)!);
+    delete stored[0].state;
+    stored[0].read = true;
+    storage.setItem(key, JSON.stringify(stored));
+
+    const migrated = new NotificationStore(storage).list(account)[0];
+    expect(migrated.state).toBe("read");
+    expect(migrated.read).toBe(true);
+  });
+
+  it("purges on clear and keeps markAllRead idempotent", () => {
+    const storage = new TestStorage();
+    const store = new NotificationStore(storage);
+    const first = store.publish(input)!;
+    store.publish({ ...input, dedupeKey: "failure:2" });
+
+    expect(store.markAllRead(account).map((n) => n.state)).toEqual(["read", "read"]);
+    expect(store.unreadCount(account)).toBe(0);
+    expect(store.list(account).map((n) => n.id).sort()).toContain(first.id);
+    expect(store.list(account)).toHaveLength(2);
+
+    store.clear(account);
+    expect(store.list(account)).toEqual([]);
+  });
+});

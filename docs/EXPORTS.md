@@ -15,6 +15,9 @@ exports of operational data. It is privacy-safe by construction:
   `isExportExpired(envelope)` before serving a stored artifact.
 - **Redaction** — secret-shaped values (`S…`/`M…` seeds, keys named
   `secret`/`seed`/`key`/`token`) become `[REDACTED]` before emission.
+- **Idempotency** — pass `idempotencyKey` and a retried request replays the
+  recorded envelope instead of minting a second artifact. See
+  [IDEMPOTENCY.md](./IDEMPOTENCY.md).
 
 ## Generating an export
 
@@ -27,7 +30,10 @@ const result = exportRecords(
     scope: "own",
     actor: { kind: "user" },
     pageSize: 100,
-    page: 1
+    page: 1,
+    // Optional, but required for any caller that can retry: a repeated request
+    // with the same key returns this same envelope.
+    idempotencyKey: "export:demo:1"
   },
   mySources // ExportRecordSource[]
 );

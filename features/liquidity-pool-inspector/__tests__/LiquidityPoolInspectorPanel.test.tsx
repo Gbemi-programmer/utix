@@ -34,8 +34,8 @@ describe("LiquidityPoolInspectorPanel", () => {
     expect(await screen.findByText("30 bps (0.30%)")).toBeInTheDocument();
     expect(screen.getByText(/1 XLM ≈ 0\.25 USDC:/)).toBeInTheDocument();
     expect(screen.getByText(/1 USDC:.*≈ 4 XLM/)).toBeInTheDocument();
-    expect(screen.getByText("10000.0000000")).toBeInTheDocument();
-    expect(screen.getByText("2500.0000000")).toBeInTheDocument();
+    expect(screen.getByText("10,000")).toBeInTheDocument();
+    expect(screen.getByText("2,500")).toBeInTheDocument();
   });
 
   it("explains that a pool ID is not an account address", async () => {

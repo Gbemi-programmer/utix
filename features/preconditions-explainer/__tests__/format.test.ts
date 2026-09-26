@@ -18,7 +18,7 @@ describe("formatUnixSeconds", () => {
   });
 
   it("renders a Unix second as a readable UTC timestamp", () => {
-    expect(formatUnixSeconds("1700000000")).toBe("2023-11-14 22:13:20 UTC");
+    expect(formatUnixSeconds("1700000000")).toBe("Nov 14, 2023, 10:13:20 PM UTC");
   });
 
   it("refuses a uint64 bound no Date can represent instead of showing Invalid Date", () => {
@@ -62,7 +62,7 @@ describe("formatRelativeSeconds", () => {
 describe("formatTimeBound", () => {
   it("shows the absolute date next to its distance from now", () => {
     expect(formatTimeBound("1700000000", "-3600")).toBe(
-      "2023-11-14 22:13:20 UTC (1 hour ago)"
+      "Nov 14, 2023, 10:13:20 PM UTC (1 hour ago)"
     );
   });
 
@@ -115,7 +115,7 @@ describe("tones", () => {
 
 describe("formatIsoTimestamp", () => {
   it("renders an ISO timestamp the same way as a decoded bound", () => {
-    expect(formatIsoTimestamp("2023-11-14T22:13:20.000Z")).toBe("2023-11-14 22:13:20 UTC");
+    expect(formatIsoTimestamp("2023-11-14T22:13:20.000Z")).toBe("Nov 14, 2023, 10:13:20 PM UTC");
   });
 
   it("passes an unparseable value through untouched", () => {

@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { INT64_MAX, stroopsToAmount } from "@/core/format/amount";
 import {
   exportRows,
-  fromStroops,
   markDuplicates,
-  MAX_STROOPS,
   resolveAsset,
   runPreflight,
-  toStroops,
   totalsByAsset,
   validateAmount,
   validateDestination
@@ -43,17 +41,6 @@ function report(csv: string) {
   return result.value;
 }
 
-describe("toStroops / fromStroops", () => {
-  it("round-trips seven decimal places exactly", () => {
-    expect(toStroops("1.0000001")).toBe(10_000_001n);
-    expect(fromStroops(10_000_001n)).toBe("1.0000001");
-  });
-
-  it("keeps precision past the safe integer range", () => {
-    expect(fromStroops(toStroops("922337203685.4775807"))).toBe("922337203685.4775807");
-  });
-});
-
 describe("validateAmount", () => {
   it("accepts a plain and a fully precise amount", () => {
     expect(validateAmount("10")).toBeNull();
@@ -81,8 +68,8 @@ describe("validateAmount", () => {
   });
 
   it("accepts the largest representable amount and rejects one stroop more", () => {
-    expect(validateAmount(fromStroops(MAX_STROOPS))).toBeNull();
-    expect(validateAmount(fromStroops(MAX_STROOPS + 1n))).toBe("amount_too_large");
+    expect(validateAmount(stroopsToAmount(INT64_MAX))).toBeNull();
+    expect(validateAmount(stroopsToAmount(INT64_MAX + 1n))).toBe("amount_too_large");
   });
 });
 

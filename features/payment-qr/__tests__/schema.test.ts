@@ -31,6 +31,8 @@ describe("parsePaymentRequest", () => {
     [{ ...nativeForm, amount: "0" }, "invalid_amount"],
     [{ ...nativeForm, amount: "ten" }, "invalid_amount"],
     [{ ...nativeForm, amount: "1.2.3" }, "invalid_amount"],
+    [{ ...nativeForm, amount: "1,5" }, "amount_has_separator"],
+    [{ ...nativeForm, amount: "1,000.5" }, "amount_has_separator"],
     [{ ...issuedForm, assetCode: "" }, "empty_asset_code"],
     [{ ...issuedForm, assetCode: "TOO LONG!" }, "invalid_asset_code"],
     [{ ...issuedForm, assetIssuer: "nope" }, "invalid_asset_issuer"]

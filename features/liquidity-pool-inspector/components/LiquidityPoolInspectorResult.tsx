@@ -1,3 +1,4 @@
+import { formatAmount } from "@/core/format/amount";
 import { Card, CardHeader, CardTitle } from "@/core/ui/Card";
 import { CopyableValue } from "@/core/ui/CopyableValue";
 import { DataList } from "@/core/ui/DataList";
@@ -35,7 +36,7 @@ export function LiquidityPoolInspectorResult({ result }: { result: LiquidityPool
               value: <CopyableValue label="pool id" value={result.poolId} visible={8} />
             },
             { label: "Fee", value: formatFeeBasisPoints(result.feeBp) },
-            { label: "Total shares", value: result.totalShares, mono: true },
+            { label: "Total shares", value: formatAmount(result.totalShares), mono: true },
             { label: participantLabel, value: String(result.participantCount), mono: true }
           ]}
         />
@@ -47,8 +48,8 @@ export function LiquidityPoolInspectorResult({ result }: { result: LiquidityPool
         </CardHeader>
         <DataList
           items={[
-            { label: assetA, value: reserveA.amount, mono: true },
-            { label: assetB, value: reserveB.amount, mono: true }
+            { label: assetA, value: formatAmount(reserveA.amount), mono: true },
+            { label: assetB, value: formatAmount(reserveB.amount), mono: true }
           ]}
         />
       </Card>
@@ -72,8 +73,8 @@ export function LiquidityPoolInspectorResult({ result }: { result: LiquidityPool
         </CardHeader>
         <DataList
           items={[
-            { label: assetA, value: result.shareValueA, mono: true },
-            { label: assetB, value: result.shareValueB, mono: true }
+            { label: assetA, value: formatAmount(result.shareValueA), mono: true },
+            { label: assetB, value: formatAmount(result.shareValueB), mono: true }
           ]}
         />
       </Card>

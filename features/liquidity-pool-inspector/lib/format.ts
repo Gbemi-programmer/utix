@@ -1,12 +1,13 @@
+import { AMOUNT_DECIMALS, amountToStroops } from "@/core/format/amount";
+
 /** Stellar amounts use exactly 7 decimal places on the ledger. */
-export const AMOUNT_SCALE = 7;
+export const AMOUNT_SCALE = AMOUNT_DECIMALS;
 
-const AMOUNT_MULTIPLIER = 10n ** BigInt(AMOUNT_SCALE);
-
+/** Horizon amount → stroops. Throws on a malformed amount; the caller maps that to an error code. */
 export function parseAmount(amount: string): bigint {
-  const [whole = "0", fraction = ""] = amount.split(".");
-  const padded = fraction.padEnd(AMOUNT_SCALE, "0").slice(0, AMOUNT_SCALE);
-  return BigInt(whole) * AMOUNT_MULTIPLIER + BigInt(padded);
+  const stroops = amountToStroops(amount);
+  if (stroops === null) throw new Error(`Malformed Horizon amount: ${amount}`);
+  return stroops;
 }
 
 /** Formats a fixed-point bigint with `scale` fractional digits. */

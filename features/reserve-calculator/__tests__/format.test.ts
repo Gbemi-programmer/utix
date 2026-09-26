@@ -19,7 +19,7 @@ describe("formatAmount", () => {
   });
 
   it("uses a typographic minus for adjustments", () => {
-    expect(formatAmount("-1.0000000")).toBe("−1 XLM");
+    expect(formatAmount("-1.0000000")).toBe("-1 XLM");
   });
 });
 

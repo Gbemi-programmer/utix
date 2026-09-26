@@ -22,6 +22,10 @@ See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) and
 
 Infrastructure docs: [Telemetry](./docs/TELEMETRY.md) ·
 [Workers](./docs/WORKERS.md) · [Exports](./docs/EXPORTS.md) ·
+[Record lifecycles](./docs/LIFECYCLE.md) ·
+[Idempotency](./docs/IDEMPOTENCY.md) ·
+[Reconciliation](./docs/RECONCILIATION.md) ·
+[Audit trail](./docs/AUDIT.md) ·
 [API Contract](./docs/API_CONTRACT.md).
 
 ## Tools
@@ -71,8 +75,12 @@ npm run new:feature          # scaffold a complete feature slice
 npm run verify:features      # check every slice against the feature contract
 npm run verify:issues        # check 40+ independent issues and the advanced wave
 npm run verify:telemetry     # verify >= 5 operations are instrumented
+npm run verify:reconciliation # every invariant is checked and the dry run is read-only
 npm run verify:contract      # run the API contract drift tests
 npm run test:workers         # run the background worker suite
+npm test -- core/lifecycle   # allowed and rejected record state transitions
+npm test -- core/idempotency # retry, replay, expiry and key collisions
+npm test -- core/reconciliation # drift scenarios and the read-only guarantee
 npm run issues               # preview the next five GrantFox issue payloads
 npm run test                 # unit, hook, component and accessibility tests
 npm run test:e2e              # full Playwright suite

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <body>
+    <a href="#main-content">Skip to main content</a>
+    <header><a href="/">Home</a></header>
+    <nav aria-label="Tools"><a href="/tools/demo">Demo tool</a></nav>
+    <main id="main-content">
+      <h1>Demo tool</h1>
+      <!-- Deliberate regression: the field swallows Tab, so focus can never leave it. -->
+      <label>Account address <input onkeydown="if (event.key === 'Tab') event.preventDefault()" /></label>
+      <button type="button">Look up</button>
+    </main>
+  </body>
+</html>

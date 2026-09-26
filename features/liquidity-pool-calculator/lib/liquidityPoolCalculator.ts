@@ -1,10 +1,11 @@
 import { err, ok, type Result } from "@/core/result/result";
 import { horizonUrl } from "@/core/horizon/client";
+import { amountToStroops, stroopsToAmount } from "@/core/format/amount";
 import type { StellarNetwork } from "@/core/network/types";
 import { copy } from "@/features/liquidity-pool-calculator/copy";
 import { toLiquidityPoolCalculatorErrorCode } from "@/features/liquidity-pool-calculator/lib/liquidityPoolCalculator.errors";
 import { formatFraction } from "@/features/liquidity-pool-calculator/lib/format";
-import { AMOUNT, POOL_ID, positiveAmount } from "@/features/liquidity-pool-calculator/schema";
+import { POOL_ID, positiveAmount } from "@/features/liquidity-pool-calculator/schema";
 import type {
   LiquidityPoolCalculatorAction,
   LiquidityPoolCalculatorErrorCode,
@@ -13,7 +14,6 @@ import type {
   PriceFraction
 } from "@/features/liquidity-pool-calculator/types";
 
-const SCALE = 10_000_000n;
 const BPS = 10_000n;
 const MATERIAL_IMPACT_BPS = 100;
 
@@ -34,15 +34,13 @@ interface CalculationRequest {
 }
 
 function parseAmount(value: unknown): bigint | null {
-  if (typeof value !== "string" || !AMOUNT.test(value)) return null;
-  const [whole, fraction = ""] = value.split(".");
-  return BigInt(whole) * SCALE + BigInt(fraction.padEnd(7, "0"));
+  const stroops = typeof value === "string" ? amountToStroops(value) : null;
+  return stroops !== null && stroops >= 0n ? stroops : null;
 }
 
+/** Canonical amount without trailing zeros (`312.5`); the result component localises it. */
 function formatAmount(value: bigint): string {
-  const whole = value / SCALE;
-  const fraction = (value % SCALE).toString().padStart(7, "0").replace(/0+$/, "");
-  return fraction ? `${whole}.${fraction}` : `${whole}`;
+  return stroopsToAmount(value).replace(/\.?0+$/, "");
 }
 
 function gcd(left: bigint, right: bigint): bigint {

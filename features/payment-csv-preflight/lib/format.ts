@@ -10,19 +10,7 @@ import type {
   RowIssueCode
 } from "@/features/payment-csv-preflight/types";
 
-/**
- * Formats an amount without going through `Number`.
- *
- * Grouping is applied to the whole part as text and trailing zeros are
- * trimmed, so a total stays exact no matter how far past the safe integer
- * range it goes.
- */
-export function formatAmount(value: string): string {
-  const [whole, fraction = ""] = value.split(".");
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const trimmed = fraction.replace(/0+$/, "");
-  return trimmed ? `${grouped}.${trimmed}` : grouped;
-}
+export { formatAmount } from "@/core/format/amount";
 
 /** Names an asset by code *and* issuer, so two assets never look like one. */
 export function formatAssetLabel(asset: AssetIdentity | null): string {

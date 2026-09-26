@@ -20,7 +20,7 @@ describe("formatOperationType", () => {
 
 describe("formatTimestamp", () => {
   it("renders UTC timestamps consistently", () => {
-    expect(formatTimestamp("2024-01-15T12:00:00.000Z")).toBe("2024-01-15 12:00:00 UTC");
+    expect(formatTimestamp("2024-01-15T12:00:00.000Z")).toBe("Jan 15, 2024, 12:00:00 PM UTC");
   });
 });
 

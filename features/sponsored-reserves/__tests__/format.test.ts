@@ -13,7 +13,7 @@ describe("formatStroops", () => {
   });
 
   it("keeps precision beyond Number.MAX_SAFE_INTEGER", () => {
-    expect(formatStroops("9223372036854775807")).toBe("922337203685.4775807");
+    expect(formatStroops("9223372036854775807")).toBe("922,337,203,685.4775807");
   });
 
   it("formats signed reserve effects", () => {

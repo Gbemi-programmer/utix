@@ -1,3 +1,5 @@
+import { formatDateTime } from "@/core/format/date";
+
 /** BigInt renders decimal digits exactly and never uses scientific notation. */
 export function formatSequence(value: bigint): string {
   return value.toString(10);
@@ -12,5 +14,5 @@ export function formatIncrease(value: bigint): string {
 }
 
 export function formatFetchedAt(timestampMs: number): string {
-  return new Date(timestampMs).toLocaleString();
+  return formatDateTime(timestampMs);
 }

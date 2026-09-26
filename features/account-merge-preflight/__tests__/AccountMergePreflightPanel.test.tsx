@@ -45,7 +45,7 @@ describe("AccountMergePreflightPanel", () => {
     const { user } = renderFeature(<AccountMergePreflightPanel />);
     await fill(user);
     expect(await screen.findByText(copy.mergeableTitle)).toBeInTheDocument();
-    expect(screen.getByText(`25.5000000 ${copy.xlmSuffix}`)).toBeInTheDocument();
+    expect(screen.getByText(`25.5 ${copy.xlmSuffix}`)).toBeInTheDocument();
     expect(screen.getAllByText(copy.pass)).toHaveLength(8);
   });
 

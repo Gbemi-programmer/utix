@@ -7,6 +7,7 @@ export type {
   NotificationEventType,
   NotificationInput,
   NotificationRecipient,
+  NotificationState,
   NotificationStorage,
   NotificationTone
 } from "@/core/notifications/types";

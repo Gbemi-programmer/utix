@@ -1,4 +1,5 @@
 import { err, ok, type Result } from "@/core/result/result";
+import { amountToStroops, formatAmount } from "@/core/format/amount";
 import { horizonUrl } from "@/core/horizon/client";
 import type { StellarNetwork } from "@/core/network/types";
 import { copy } from "@/features/trade-aggregation-viewer/copy";
@@ -6,7 +7,6 @@ import { toTradeAggregationViewerErrorCode } from "@/features/trade-aggregation-
 import { assetQuery, parseTradeAggregationViewerInput } from "@/features/trade-aggregation-viewer/schema";
 import type { ExactPrice, TradeAggregationAsset, TradeAggregationBucket, TradeAggregationViewerErrorCode, TradeAggregationViewerInput, TradeAggregationViewerResult } from "@/features/trade-aggregation-viewer/types";
 
-const AMOUNT_SCALE = 10_000_000n;
 const DECIMAL = /^\d+(?:\.\d+)?$/;
 interface Rational { n: bigint; d: bigint; }
 interface RawAggregation extends Record<string, unknown> { timestamp?: number | string; trade_count?: number | string; base_volume?: string; counter_volume?: string; open?: string; high?: string; low?: string; close?: string; open_r?: { n?: string | number; d?: string | number }; high_r?: { n?: string | number; d?: string | number }; low_r?: { n?: string | number; d?: string | number }; close_r?: { n?: string | number; d?: string | number }; }
@@ -15,8 +15,7 @@ function reduce(n: bigint, d: bigint): Rational { if (d < 0n) [n, d] = [-n, -d];
 function parseDecimal(value: unknown): Rational | null { if (typeof value !== "string" || !DECIMAL.test(value)) return null; const [whole, fraction = ""] = value.split("."); const d = 10n ** BigInt(fraction.length); return reduce(BigInt(whole) * d + BigInt(fraction || "0"), d); }
 function parsePrice(value: unknown, exact: unknown): Rational | null { if (typeof exact === "object" && exact !== null) { const raw = exact as { n?: string | number; d?: string | number }; if (raw.n !== undefined && raw.d !== undefined) { try { const n = BigInt(raw.n); const d = BigInt(raw.d); return n > 0n && d > 0n ? reduce(n, d) : null; } catch { return null; } } } return parseDecimal(value); }
 function price(value: Rational): ExactPrice { return { numerator: value.n.toString(), denominator: value.d.toString(), display: `${value.n}/${value.d}` }; }
-function parseAmount(value: unknown): bigint | null { if (typeof value !== "string" || !/^\d+(?:\.\d{1,7})?$/.test(value)) return null; const [whole, fraction = ""] = value.split("."); return BigInt(whole) * AMOUNT_SCALE + BigInt(fraction.padEnd(7, "0")); }
-function formatAmount(value: bigint): string { const whole = value / AMOUNT_SCALE; const fraction = (value % AMOUNT_SCALE).toString().padStart(7, "0").replace(/0+$/, ""); return fraction ? `${whole}.${fraction}` : `${whole}`; }
+function parseAmount(value: unknown): bigint | null { const stroops = typeof value === "string" ? amountToStroops(value) : null; return stroops !== null && stroops >= 0n ? stroops : null; }
 function requestFromInput(input: TradeAggregationViewerInput): Result<{ base: TradeAggregationAsset; counter: TradeAggregationAsset; resolution: number; startTime?: string; endTime?: string; offsetHours: number }, TradeAggregationViewerErrorCode> {
   if (input.base && input.counter) {
     const parsed = parseTradeAggregationViewerInput(JSON.stringify({ base: input.base, counter: input.counter, resolution: input.resolution ?? 3_600_000, startTime: input.startTime, endTime: input.endTime, offsetHours: input.offsetHours ?? 0 }));

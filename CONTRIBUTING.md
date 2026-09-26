@@ -58,6 +58,13 @@ contract check and a production build. CI runs exactly the same thing.
 - Requests mocked with MSW, not `vi.mock`
 - **No secret key ever accepted, displayed, stored or transmitted**
 
+## Changing the feature contract
+
+A pull request that changes [docs/FEATURE_CONTRACT.md](./docs/FEATURE_CONTRACT.md)
+must include an architecture decision record in [docs/adr/](./docs/adr/README.md)
+explaining the change. Read the existing records first — they explain why the
+current rules exist.
+
 ## Commits and pull requests
 
 - One tool per pull request. Link the issue it closes.

@@ -29,3 +29,25 @@ export {
   type DriftReport,
   type DriftIssue
 } from "@/core/testing/driftDetection";
+export {
+  NETWORK_PROFILES,
+  getNetworkProfile,
+  getProfileFixtures,
+  isNetworkProfileId,
+  type NetworkProfile,
+  type NetworkProfileId,
+  type NetworkProfileNetwork,
+  type AccountState,
+  type ProfileFixtures,
+  type ProfileAccountFixture,
+  type ProfileErrorFixture,
+  type NetworkProfileContext
+} from "@/core/testing/networkProfiles";
+export { networkProfileHandlers } from "@/core/testing/networkProfileHandlers";
+export {
+  runAgainstNetworkProfiles,
+  getProfileEdgeCases,
+  isProfile,
+  type RunAgainstProfilesOptions,
+  type ProfileTestFactory
+} from "@/core/testing/runAgainstProfiles";

@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/core/format/date";
 import type { TomlCurrency } from "@/features/asset-metadata/types";
 
 export function formatAssetIdentity(currency: TomlCurrency): string {
@@ -20,7 +21,7 @@ export function declaredFields(currency: TomlCurrency): Array<{ label: string; v
 }
 
 export function formatFetchedAt(iso: string): string {
-  return iso.replace("T", " ").replace(/\.\d+Z$/, " UTC");
+  return formatDateTime(iso);
 }
 
 /** True when the entry names an asset but no issuer to pin it to. */

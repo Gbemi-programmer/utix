@@ -41,10 +41,10 @@ describe("describePredicate", () => {
 
   it("renders absolute and relative bounds", () => {
     expect(describePredicate({ abs_before: "2026-01-01T00:00:00Z" })).toBe(
-      "before 2026-01-01 00:00:00 UTC"
+      "before Jan 1, 2026, 12:00:00 AM UTC"
     );
     expect(describePredicate({ abs_after: "2026-01-01T00:00:00Z" })).toBe(
-      "from 2026-01-01 00:00:00 UTC onward"
+      "from Jan 1, 2026, 12:00:00 AM UTC onward"
     );
     expect(describePredicate({ rel_before: "86400" })).toBe(
       "within 1 day after the balance was created"
@@ -68,7 +68,7 @@ describe("describePredicate", () => {
     });
 
     expect(text).toBe(
-      "not (before 2027-01-01 00:00:00 UTC) and within 2 minutes after the balance was created or from 2026-01-01 00:00:00 UTC onward"
+      "not (before Jan 1, 2027, 12:00:00 AM UTC) and within 2 minutes after the balance was created or from Jan 1, 2026, 12:00:00 AM UTC onward"
     );
   });
 });

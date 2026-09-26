@@ -1,3 +1,4 @@
+import { formatAmount, formatInteger } from "@/core/format/amount";
 import type { CongestionLevel, StroopAmount } from "@/features/fee-stats/types";
 
 /** Thresholds are stated here rather than inline so the UI and tests agree. */
@@ -17,8 +18,8 @@ export function formatCapacityUsage(usage: number | null): string {
 
 export function formatFee(amount: StroopAmount | null): string {
   if (!amount) return "Not reported";
-  const xlm = amount.xlm.replace(/0+$/, "").replace(/\.$/, ".0");
-  return `${amount.stroops} stroops (${xlm} XLM)`;
+  const stroops = BigInt(amount.stroops);
+  return `${formatInteger(stroops)} stroops (${formatAmount(stroops)} XLM)`;
 }
 
 /**

@@ -1,7 +1,9 @@
 import {err,ok,type Result} from "@/core/result/result";
+import {parseAmount as parseStellarAmount} from "@/core/format/amount";
 import type {RawInput,ErrorCode,Input} from "./types";
 import {Asset,StrKey} from "@stellar/stellar-sdk";
-export function parseAmount(value:unknown):bigint|null{if(typeof value!=="string"||value.length>30||!/^\d+(\.\d{1,7})?$/.test(value))return null;const [whole,fraction=""]=value.split(".");const n=BigInt(whole)*10000000n+BigInt(fraction.padEnd(7,"0"));return n<=9223372036854775807n?n:null;}
+/** Non-negative int64 stroops in the canonical period-decimal form (see core/format/amount). */
+export function parseAmount(value:unknown):bigint|null{if(typeof value!=="string"||value.length>30||value!==value.trim())return null;const parsed=parseStellarAmount(value);return parsed.ok?parsed.value:null;}
 export function parseInput(raw:RawInput):Result<Input,ErrorCode>{
  if(!raw.snapshot?.trim()||!raw.limit?.trim())return err("empty_input");if(raw.snapshot.length>65536||raw.limit.length>30)return err("input_too_large");
  const proposed=parseAmount(raw.limit.trim());if(proposed===null)return err("invalid_limit");

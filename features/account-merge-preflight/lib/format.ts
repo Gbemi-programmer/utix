@@ -1,21 +1,12 @@
-const STELLAR_AMOUNT = /^(0|[1-9]\d*)(?:\.(\d{1,7}))?$/;
-const STROOPS_PER_XLM = 10_000_000n;
+import { amountToStroops as signedAmountToStroops } from "@/core/format/amount";
 
+export { stroopsToAmount } from "@/core/format/amount";
+
+/** A balance as Horizon writes it: non-negative, no leading zeros, at most seven decimals. */
 export function amountToStroops(amount: string): bigint | null {
-  const match = STELLAR_AMOUNT.exec(amount);
-  if (!match) return null;
-
-  try {
-    return BigInt(match[1]) * STROOPS_PER_XLM + BigInt((match[2] ?? "").padEnd(7, "0"));
-  } catch {
-    return null;
-  }
-}
-
-export function stroopsToAmount(stroops: bigint): string {
-  const whole = stroops / STROOPS_PER_XLM;
-  const fraction = (stroops % STROOPS_PER_XLM).toString().padStart(7, "0");
-  return `${whole}.${fraction}`;
+  if (/^0\d/.test(amount)) return null;
+  const stroops = signedAmountToStroops(amount);
+  return stroops !== null && stroops >= 0n ? stroops : null;
 }
 
 export function formatAsset(asset: { asset_type: string; asset_code?: string; asset_issuer?: string }): string {

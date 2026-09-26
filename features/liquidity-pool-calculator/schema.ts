@@ -1,14 +1,16 @@
 import { err, ok, type Result } from "@/core/result/result";
+import { parseAmount } from "@/core/format/amount";
 import type {
   LiquidityPoolCalculatorErrorCode,
   LiquidityPoolCalculatorInput
 } from "@/features/liquidity-pool-calculator/types";
 
 export const POOL_ID = /^[a-fA-F0-9]{64}$/;
-export const AMOUNT = /^(?:0|[1-9]\d*)(?:\.\d{1,7})?$/;
-
+/** A positive amount in the canonical period-decimal form (see core/format/amount). */
 export function positiveAmount(value: unknown): value is string {
-  return typeof value === "string" && AMOUNT.test(value) && !/^0+(?:\.0{1,7})?$/.test(value);
+  if (typeof value !== "string" || value !== value.trim()) return false;
+  const stroops = parseAmount(value);
+  return stroops.ok && stroops.value > 0n;
 }
 
 function readObject(raw: string): Record<string, unknown> | null {

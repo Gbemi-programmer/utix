@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/core/format/date";
 import type { BadgeProps } from "@/core/ui/Badge";
 import type { StatusType } from "@/core/ui/StatusMessage";
 import type { BoundStatus, Verdict } from "@/features/preconditions-explainer/types";
@@ -13,7 +14,7 @@ const UNITS: readonly (readonly [bigint, string])[] = [
 ];
 
 /**
- * Renders a whole-second Unix timestamp in UTC.
+ * Renders a whole-second Unix timestamp in the user's locale, in UTC.
  *
  * Bounds are `uint64` seconds, so they are handled as `BigInt` all the way to
  * the point of rendering — a bound past year 275760 is reported as
@@ -24,10 +25,7 @@ export function formatUnixSeconds(seconds: string): string {
   if (value === 0n) return "Unbounded";
   if (value < 0n || value > MAX_REPRESENTABLE_SECONDS) return "Beyond any representable date";
 
-  return new Date(Number(value) * 1000)
-    .toISOString()
-    .replace("T", " ")
-    .replace(".000Z", " UTC");
+  return formatDateTime(Number(value) * 1000);
 }
 
 /**

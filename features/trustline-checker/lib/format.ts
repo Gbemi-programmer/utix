@@ -1,8 +1,10 @@
+import { formatAmount } from "@/core/format/amount";
+
 /** Horizon reports "no practical limit" as the maximum int64 in stroops. */
 export const MAX_LIMIT = "922337203685.4775807";
 
 export function formatLimit(limit: string): string {
-  return limit === MAX_LIMIT ? "Maximum (no practical limit)" : limit;
+  return limit === MAX_LIMIT ? "Maximum (no practical limit)" : formatAmount(limit);
 }
 
 export function formatAssetIdentity(assetCode: string, issuerId: string): string {

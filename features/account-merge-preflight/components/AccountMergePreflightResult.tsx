@@ -1,3 +1,4 @@
+import { formatAmount } from "@/core/format/amount";
 import { Badge } from "@/core/ui/Badge";
 import { Button } from "@/core/ui/Button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/core/ui/Card";
@@ -45,12 +46,12 @@ export function AccountMergePreflightResult({
             },
             {
               label: copy.transferableXlm,
-              value: `${result.transferableXlm} ${copy.xlmSuffix}`,
+              value: `${formatAmount(result.transferableXlm)} ${copy.xlmSuffix}`,
               mono: true
             },
             {
               label: copy.maximumReceivableXlm,
-              value: `${result.destinationMaximumReceivableXlm} ${copy.xlmSuffix}`,
+              value: `${formatAmount(result.destinationMaximumReceivableXlm)} ${copy.xlmSuffix}`,
               mono: true
             },
             {

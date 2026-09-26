@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Bell, Check, CheckCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/core/ui/Button";
+import { notificationMachine, stateView } from "@/core/lifecycle/records";
 import { useNotifications } from "@/core/notifications/NotificationProvider";
 import type { NotificationEventType } from "@/core/notifications/types";
 
@@ -96,11 +97,16 @@ export function NotificationCenter() {
 
           {notifications.length ? (
             <ul className="max-h-80 space-y-2 overflow-y-auto" aria-label="Notification history">
-              {notifications.map((notification) => (
+              {notifications.map((notification) => {
+                // One model: the store writes the state, this view labels it, and
+                // both refuse the same transitions.
+                const view = stateView("notification", notification.state);
+                const canMarkRead = notificationMachine.canTransition(notification.state, "read").ok;
+                return (
                 <li
                   key={notification.id}
                   className={`rounded-md border p-3 ${toneClasses[notification.event]} ${
-                    notification.read ? "opacity-75" : "border-l-4"
+                    view.state === "unread" ? "border-l-4" : "opacity-75"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -110,7 +116,7 @@ export function NotificationCenter() {
                       </p>
                       <p className="mt-1 text-sm font-extrabold text-[#172033]">{notification.title}</p>
                     </div>
-                    {!notification.read ? (
+                    {view.state === "unread" ? (
                       <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#c4473d]" aria-label="Unread" />
                     ) : null}
                   </div>
@@ -124,7 +130,7 @@ export function NotificationCenter() {
                     >
                       Open workflow
                     </Link>
-                    {!notification.read ? (
+                    {canMarkRead ? (
                       <Button type="button" variant="ghost" size="sm" onClick={() => markRead(notification.id)}>
                         <Check className="h-4 w-4" aria-hidden />
                         Mark read
@@ -132,7 +138,8 @@ export function NotificationCenter() {
                     ) : null}
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           ) : (
             <p className="rounded-md bg-[#f3f7fb] p-4 text-sm text-[#4e5c73]">

@@ -11,6 +11,11 @@ export function formatTimestamp(iso: string): string {
     ? iso
     : date.toISOString().replace("T", " ").replace(".000Z", " UTC");
 }
+import { formatAmount } from "@/core/format/amount";
+import { formatDateTime } from "@/core/format/date";
+import type { ClaimableBalanceSummary } from "@/features/claimable-balances/types";
+
+export { formatAmount, formatDateTime as formatTimestamp };
 
 export function formatBalanceHeading(balance: ClaimableBalanceSummary): string {
   return `${formatAmount(balance.amount)} ${balance.asset.label}`;

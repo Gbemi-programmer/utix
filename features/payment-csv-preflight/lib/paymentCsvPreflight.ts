@@ -1,5 +1,11 @@
 import { StrKey } from "@stellar/stellar-sdk";
 import { err, ok, type Result } from "@/core/result/result";
+import {
+  amountToStroops,
+  parseAmount,
+  stroopsToAmount,
+  type AmountParseError
+} from "@/core/format/amount";
 import { parseCsv, withoutBlankRows } from "@/features/payment-csv-preflight/lib/csv";
 import {
   MAX_ROWS,
@@ -16,28 +22,20 @@ import type {
   RowIssueCode
 } from "@/features/payment-csv-preflight/types";
 
-const STROOPS_PER_UNIT = 10_000_000n;
+const AMOUNT_ISSUES: Record<AmountParseError, RowIssueCode> = {
+  empty: "missing_amount",
+  grouping_separator: "invalid_amount",
+  invalid_format: "invalid_amount",
+  too_many_decimals: "too_many_decimals",
+  negative: "invalid_amount",
+  out_of_range: "amount_too_large"
+};
 
-/** The largest amount the protocol can hold, in stroops. */
-export const MAX_STROOPS = 9_223_372_036_854_775_807n;
-
-const AMOUNT_SHAPE = /^\d+(\.\d+)?$/;
 const ASSET_CODE_SHAPE = /^[A-Za-z0-9]{1,12}$/;
 const MEMO_TYPES = new Set(["text", "id", "hash", "return"]);
 
 /** StrKey shape of an ed25519 secret seed, matched on the `S` prefix alone. */
 const SECRET_SEED = /^S[A-Z2-7]{55}$/;
-
-export function toStroops(amount: string): bigint {
-  const [whole, fraction = ""] = amount.split(".");
-  return BigInt(whole || "0") * STROOPS_PER_UNIT + BigInt(fraction.padEnd(7, "0").slice(0, 7));
-}
-
-export function fromStroops(stroops: bigint): string {
-  const whole = stroops / STROOPS_PER_UNIT;
-  const fraction = (stroops % STROOPS_PER_UNIT).toString().padStart(7, "0");
-  return `${whole}.${fraction}`;
-}
 
 /**
  * Validates an amount with exact seven-decimal arithmetic.
@@ -48,16 +46,12 @@ export function fromStroops(stroops: bigint): string {
  */
 export function validateAmount(raw: string): RowIssueCode | null {
   if (!raw) return "missing_amount";
-  if (!AMOUNT_SHAPE.test(raw)) return "invalid_amount";
+  // A cell is taken exactly as written; padding is a sign of a malformed file.
+  if (raw !== raw.trim()) return "invalid_amount";
 
-  const [, fraction = ""] = raw.split(".");
-  if (fraction.length > 7) return "too_many_decimals";
-
-  const stroops = toStroops(raw);
-  if (stroops <= 0n) return "non_positive_amount";
-  if (stroops > MAX_STROOPS) return "amount_too_large";
-
-  return null;
+  const stroops = parseAmount(raw);
+  if (!stroops.ok) return AMOUNT_ISSUES[stroops.code];
+  return stroops.value === 0n ? "non_positive_amount" : null;
 }
 
 /**
@@ -168,7 +162,11 @@ export function markDuplicates(rows: PaymentRow[]): void {
   }
 }
 
-/** Totals the valid rows per asset, exactly, in first-appearance order. */
+/**
+ * Totals the valid rows per asset, exactly, in first-appearance order. Valid
+ * rows passed `validateAmount`, so each amount converts; a total may exceed
+ * int64, which `amountToStroops` deliberately allows.
+ */
 export function totalsByAsset(rows: PaymentRow[]): AssetTotal[] {
   const totals = new Map<string, { asset: AssetIdentity; stroops: bigint; rowCount: number }>();
 
@@ -177,21 +175,21 @@ export function totalsByAsset(rows: PaymentRow[]): AssetTotal[] {
 
     const existing = totals.get(row.asset.key);
     if (existing) {
-      existing.stroops += toStroops(row.amount);
+      existing.stroops += amountToStroops(row.amount) ?? 0n;
       existing.rowCount += 1;
       continue;
     }
 
     totals.set(row.asset.key, {
       asset: row.asset,
-      stroops: toStroops(row.amount),
+      stroops: amountToStroops(row.amount) ?? 0n,
       rowCount: 1
     });
   }
 
   return [...totals.values()].map((entry) => ({
     asset: entry.asset,
-    total: fromStroops(entry.stroops),
+    total: stroopsToAmount(entry.stroops),
     rowCount: entry.rowCount
   }));
 }

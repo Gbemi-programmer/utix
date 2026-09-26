@@ -1,3 +1,5 @@
+import { formatAmount } from "@/core/format/amount";
+import { formatDateTime } from "@/core/format/date";
 import { Card, CardHeader, CardTitle } from "@/core/ui/Card";
 import { DataList } from "@/core/ui/DataList";
 import { Button } from "@/core/ui/Button";
@@ -8,7 +10,7 @@ import type { TradeHistoryResult as ResultValue, TradeHistoryRecord } from "@/fe
 
 function sideLabel(record: TradeHistoryRecord, side: "base" | "counter"): string {
   const value = record[side];
-  return `${formatAsset(value.asset)} ${value.amount} (${value.account ? `${value.account.slice(0, 6)}...` : copy.notAvailable})`;
+  return `${formatAsset(value.asset)} ${formatAmount(value.amount)} (${value.account ? `${value.account.slice(0, 6)}...` : copy.notAvailable})`;
 }
 
 export function TradeHistoryResult({ result, paging, onNext, onPrevious }: { result: ResultValue; paging: "idle" | "next" | "previous"; onNext: () => void; onPrevious: () => void }) {
@@ -27,7 +29,7 @@ export function TradeHistoryResult({ result, paging, onNext, onPrevious }: { res
       </Card>
       {!result.noTrades ? <div className="space-y-3">{result.records.map((trade) => <Card key={trade.id}>
         <DataList items={[
-          { label: copy.timestamp, value: trade.ledgerCloseTime, mono: true },
+          { label: copy.timestamp, value: formatDateTime(trade.ledgerCloseTime), mono: true },
           { label: copy.baseSide, value: sideLabel(trade, "base") },
           { label: copy.counterSide, value: sideLabel(trade, "counter") },
           { label: copy.price, value: trade.price, mono: true },

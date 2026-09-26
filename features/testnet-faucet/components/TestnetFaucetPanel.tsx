@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Button } from "@/core/ui/Button";
 import { Card } from "@/core/ui/Card";
 import { SkeletonRows } from "@/core/ui/Skeleton";
 import { StatusMessage } from "@/core/ui/StatusMessage";
@@ -43,6 +44,8 @@ export function TestnetFaucetPanel() {
     }
     prevStatusRef.current = state.status;
   }, [state.status]);
+  const { state, submit, reset } = useTestnetFaucet();
+  const { network } = useNetwork();
 
   return (
     <div className="space-y-5">
@@ -60,6 +63,8 @@ export function TestnetFaucetPanel() {
           ref={formInputRef}
           onSubmit={submit}
           pending={state.status === "funding"}
+          onSubmit={submit}
+          pending={state.status === "funding" || state.status === "waiting"}
         />
       </Card>
 
@@ -72,13 +77,30 @@ export function TestnetFaucetPanel() {
         </Card>
       ) : null}
 
+      {state.status === "waiting" ? (
+        <StatusMessage
+          type="warning"
+          title={copy.waitingTitle}
+          description={copy.waitingDescription(state.retry)}
+          action={
+            <Button type="button" variant="secondary" size="sm" onClick={reset}>
+              {copy.cancelRetry}
+            </Button>
+          }
+        />
+      ) : null}
+
       {state.status === "error" ? (
         <StatusMessage
           ref={errorRef}
           tabIndex={-1}
           type="error"
           title={errorCopy[state.code].title}
-          description={errorCopy[state.code].description}
+          description={
+            state.retryAfterMs === undefined
+              ? errorCopy[state.code].description
+              : `${errorCopy[state.code].description} ${copy.retryAfter(state.retryAfterMs)}`
+          }
         />
       ) : null}
 

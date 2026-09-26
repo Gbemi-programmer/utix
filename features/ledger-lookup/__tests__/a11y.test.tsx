@@ -8,4 +8,4 @@ import { LedgerLookupPanel } from "../components/LedgerLookupPanel";
 import { copy } from "../copy";
 withMswHandlers(...handlers);
 it("has no WCAG violations initially", async () => {const {container} = renderFeature(<LedgerLookupPanel/>);await expectNoAxeViolations(container);});
-it("has no WCAG violations with a ledger", async () => {resetHorizonClients();const {container,user} = renderFeature(<LedgerLookupPanel/>); await user.type(screen.getByLabelText(copy.formLabel),"900"); await user.click(screen.getByRole("button",{name:copy.submit})); await screen.findByText("900719925.4740993"); await expectNoAxeViolations(container);});
+it("has no WCAG violations with a ledger", async () => {resetHorizonClients();const {container,user} = renderFeature(<LedgerLookupPanel/>); await user.type(screen.getByLabelText(copy.formLabel),"900"); await user.click(screen.getByRole("button",{name:copy.submit})); await screen.findByText("900,719,925.4740993"); await expectNoAxeViolations(container);});

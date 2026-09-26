@@ -49,6 +49,7 @@ npm run verify:features -- <slug>
 - [ ] Amount arithmetic uses strings/`BigInt`, never floating point
 - [ ] No secret key is accepted, rendered, stored, logged or transmitted
 - [ ] `README.md` records the feature's non-obvious technical decision
+- [ ] If this changes `docs/FEATURE_CONTRACT.md`, it adds or supersedes an ADR in `docs/adr/`
 
 ## Follow-Up
 

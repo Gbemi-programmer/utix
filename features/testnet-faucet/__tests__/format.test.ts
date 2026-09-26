@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { STARTING_BALANCE, explorerUrl, formatLedger } from "@/features/testnet-faucet/lib/format";
+import { HorizonRequestTimeoutError } from "@/core/horizon/request";
 import { toFaucetErrorCode } from "@/features/testnet-faucet/lib/friendbot.errors";
 import { newAccountId } from "@/features/testnet-faucet/fixtures/testnetFaucet.fixture";
 
@@ -26,6 +27,10 @@ describe("STARTING_BALANCE", () => {
 describe("toFaucetErrorCode", () => {
   it("treats a transport failure as the faucet being unavailable", () => {
     expect(toFaucetErrorCode(new Error("failed to fetch"))).toBe("friendbot_unavailable");
+  });
+
+  it("treats the client timeout as a timeout", () => {
+    expect(toFaucetErrorCode(new HorizonRequestTimeoutError())).toBe("timeout");
   });
 
   it("treats an abort as a plain request failure", () => {

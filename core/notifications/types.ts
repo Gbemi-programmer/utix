@@ -22,10 +22,18 @@ export interface NotificationInput {
   occurredAt?: number;
 }
 
+/**
+ * A notification's lifecycle state, declared in `core/lifecycle/records.ts`.
+ * `read` below is derived from it, so no two consumers can disagree about it.
+ */
+export type NotificationState = "unread" | "read" | "archived" | "purged";
+
 export interface Notification extends NotificationInput {
   id: string;
   createdAt: string;
+  /** Derived from `state`; kept so existing consumers keep compiling. */
   read: boolean;
+  state: NotificationState;
 }
 
 export interface NotificationStorage {

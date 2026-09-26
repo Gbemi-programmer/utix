@@ -14,8 +14,8 @@ describe("formatAmount", () => {
 });
 
 describe("formatTimestamp", () => {
-  it("renders ISO timestamps in UTC", () => {
-    expect(formatTimestamp("2026-05-02T10:14:05Z")).toBe("2026-05-02 10:14:05 UTC");
+  it("renders ISO timestamps in the user's locale, in UTC", () => {
+    expect(formatTimestamp("2026-05-02T10:14:05Z")).toBe("May 2, 2026, 10:14:05 AM UTC");
   });
 });
 

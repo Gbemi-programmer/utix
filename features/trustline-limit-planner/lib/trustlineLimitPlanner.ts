@@ -1,7 +1,9 @@
 import {err,ok,type Result} from "@/core/result/result";
+import {formatAmount} from "@/core/format/amount";
 import type {Input,Report,ErrorCode} from "../types";
 import {copy} from "../copy";
-export function amountString(n:bigint):string{const sign=n<0n?"-":"";const value=n<0n?-n:n;return sign+(value/10000000n).toString()+"."+(value%10000000n).toString().padStart(7,"0");}
+/** Exact seven-decimal amount in the user's locale. */
+export function amountString(n:bigint):string{return formatAmount(n,{trimZeros:false});}
 export function analyze(input:Input):Result<Report,ErrorCode>{
  const minimum=input.balance+input.buying;const deletion=input.proposed===0n;const blockers:string[]=[];
  if(deletion){if(input.balance!==0n)blockers.push(copy.balanceBlock);if(input.buying!==0n)blockers.push(copy.buyingBlock);if(input.selling!==0n)blockers.push(copy.sellingBlock);}

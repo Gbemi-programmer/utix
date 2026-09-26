@@ -1,3 +1,4 @@
+import { formatAmount } from "@/core/format/amount";
 import type {
   AccountMergeBlocker,
   AccountMergeCheckId,
@@ -102,7 +103,7 @@ export function describeBlocker(blocker: AccountMergeBlocker): string {
     case "immutable_auth":
       return "AUTH_IMMUTABLE is set on the source account";
     case "destination_capacity":
-      return `Source would transfer ${blocker.transferableXlm} XLM, but the destination can currently receive at most ${blocker.maximumReceivableXlm} XLM`;
+      return `Source would transfer ${formatAmount(blocker.transferableXlm)} XLM, but the destination can currently receive at most ${formatAmount(blocker.maximumReceivableXlm)} XLM`;
   }
 }
 

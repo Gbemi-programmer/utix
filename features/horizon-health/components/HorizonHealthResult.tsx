@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/core/format/date";
 import { Card, CardHeader, CardTitle } from "@/core/ui/Card";
 import { DataList } from "@/core/ui/DataList";
 import { StatusMessage } from "@/core/ui/StatusMessage";
@@ -9,7 +10,7 @@ export function HorizonHealthResult({result}: {result: Value}) {
  return <Card><CardHeader><CardTitle>{copy.resultTitle}</CardTitle></CardHeader>
  {result.degraded ? <StatusMessage type="warning" {...errorCopy.degraded}/> : <p>{copy.healthy}</p>}
  <p>{copy.threshold}</p><DataList items={[
- ...fields.map(key => ({label: copy[key], value: String(result[key])})),
+ ...fields.map(key => ({label: copy[key], value: key === "observedAt" ? formatDateTime(result[key]) : String(result[key])})),
  {label: copy.limit, value: formatHeader(result.rateLimit.limit)},
  {label: copy.remaining, value: formatHeader(result.rateLimit.remaining)},
  {label: copy.rateReset, value: formatHeader(result.rateLimit.reset)}]}/></Card>;

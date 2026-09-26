@@ -1,3 +1,6 @@
+import { formatInteger } from "@/core/format/amount";
+import { formatDateTime } from "@/core/format/date";
+
 /** Horizon claim-predicate JSON as returned on claimable balances. */
 export interface HorizonPredicate {
   unconditional?: boolean;
@@ -63,11 +66,11 @@ export function describePredicate(predicate: HorizonPredicate): string {
   }
 
   if (predicate.abs_before) {
-    return `before ${formatAbsoluteTime(predicate.abs_before)}`;
+    return `before ${formatDateTime(predicate.abs_before)}`;
   }
 
   if (predicate.abs_after) {
-    return `from ${formatAbsoluteTime(predicate.abs_after)} onward`;
+    return `from ${formatDateTime(predicate.abs_after)} onward`;
   }
 
   const relBefore = readRelativeSeconds(predicate.rel_before);
@@ -130,13 +133,6 @@ export function isPredicateClaimableNow(
   return false;
 }
 
-function formatAbsoluteTime(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? iso
-    : date.toISOString().replace("T", " ").replace(".000Z", " UTC");
-}
-
 function formatRelativeSeconds(seconds: number): string {
   const units: Array<[number, string]> = [
     [86_400, "day"],
@@ -151,5 +147,5 @@ function formatRelativeSeconds(seconds: number): string {
     }
   }
 
-  return `${seconds.toLocaleString("en-US")} seconds`;
+  return `${formatInteger(seconds)} seconds`;
 }

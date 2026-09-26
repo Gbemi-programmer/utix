@@ -15,6 +15,9 @@ Locked operations (see `core/contract/__tests__/contract.test.ts`):
 | `worker.job`        | Job payload from `core/workers`                             |
 | `export.envelope`   | Export artifact from `core/export`                          |
 | `feature.manifest`  | Registry metadata every feature publishes                   |
+| `lifecycle.state`   | Derived state view shared by the UI and API responses        |
+| `idempotency.record` | Persisted outcome replayed for a retried write             |
+| `reconciliation.report` | Read-only dry-run drift report                         |
 
 ## Conventions
 
@@ -91,6 +94,82 @@ What `manifest.ts` publishes for every tool:
 ```json
 {"slug":"payment-qr","title":"Payment QR Generator","description":"Build a SEP-0007 payment request URI and render it as a scannable QR code.","category":"payments","status":"working"}
 ```
+
+## 6. Record state view — `lifecycle.state`
+
+`stateView(kind, state)` from `core/lifecycle/records.ts`. The UI and an API
+consumer receive the *same* object: the label, the tone and the legal events all
+come from the lifecycle table, so a badge can never disagree with a payload.
+
+```json
+{"kind":"worker_job","state":"retrying","label":"Retrying","tone":"warning","terminal":false,"allowedEvents":["start","fail","exhaust","retry","dead_letter"]}
+```
+
+```json
+{"kind":"notification","state":"purged","label":"Purged","tone":"danger","terminal":true,"allowedEvents":[]}
+```
+
+A rejected transition is a `Result`, not an exception:
+
+```json
+{"ok":false,"code":"terminal_state"}
+```
+
+Codes: `unknown_record_kind`, `unknown_state`, `unknown_event`,
+`invalid_transition`, `terminal_state`. See
+[LIFECYCLE.md](./LIFECYCLE.md).
+
+## 7. Idempotency record — `idempotency.record`
+
+A retried write replays this record instead of repeating the side effect.
+
+```json
+{"key":"export:2026-09-26:1","operation":"export.generate","requestHash":"req-37be50f9","status":"completed","response":{"recordCount":2},"createdAt":"2026-09-26T00:00:00.000Z","expiresAt":"2026-09-27T00:00:00.000Z","replays":1,"correlationId":"8f0c…06"}
+```
+
+Refused keys:
+
+```json
+{"ok":false,"code":"idempotency_key_conflict"}
+```
+
+Codes: `idempotency_key_missing`, `idempotency_key_invalid`,
+`idempotency_key_expired`, `idempotency_key_conflict`, `idempotency_in_flight`,
+`idempotency_not_found`. See [IDEMPOTENCY.md](./IDEMPOTENCY.md).
+
+## 8. Reconciliation report — `reconciliation.report`
+
+Read-only output of a dry run. `dryRun` is always `true`; there is no repair
+field that mutates anything.
+
+```json
+{"runId":"…","startedAt":"2026-09-26T00:00:00.000Z","finishedAt":"2026-09-26T00:00:00.000Z","dryRun":true,"checks":[{"invariant":"balance.amount_agrees","checked":4,"findings":1}],"findings":[{"id":"balance.amount_agrees:G1|USDC","invariant":"balance.amount_agrees","kind":"inconsistent","severity":"critical","subject":"stored_balance","recordId":"G1|USDC","detail":"Stored USDC balance disagrees with ledger reference ledger:100.","expected":"10.51","observed":"10.50","repair":"Treat the ledger as authoritative and re-cache the line. …"}],"summary":{"missing":0,"duplicate":0,"stale":1,"inconsistent":1,"total":2},"clean":false}
+```
+
+`kind` is one of `missing`, `duplicate`, `stale`, `inconsistent`. See
+[RECONCILIATION.md](./RECONCILIATION.md).
+
+## 9. Audit event — `audit.event`
+
+One event per sensitive action. `before`/`after` hold primitives only, so an
+event can never carry a payload.
+
+```json
+{"id":"4b16c3b6-85b7-4d43-8abb-79491d0fe612","action":"record.state_changed","actor":{"kind":"maintainer","id":"ada"},"actorId":"ada","scope":"maintainer","target":{"kind":"worker_job","id":"job-1"},"reason":"manual_dead_letter","outcome":"allowed","before":{"state":"retrying"},"after":{"state":"dead_lettered","event":"dead_letter"},"at":"2026-09-26T00:00:00.000Z","correlationId":"8f0c…06"}
+```
+
+`action` is one of `record.state_changed`, `record.transition_denied`,
+`export.generated`, `notification.published`, `notification.cleared`,
+`reconciliation.reported`, `idempotency.claim_released`,
+`quota.override_granted`, `quota.override_revoked`. `outcome` is `allowed`
+or `denied`, in which case `errorCode` carries the refusal. Refused reads:
+
+```json
+{"ok":false,"code":"audit_denied"}
+```
+
+Codes: `audit_denied`, `invalid_audit_field`, `invalid_filter`,
+`audit_not_found`. See [AUDIT.md](./AUDIT.md).
 
 ## Drift detection
 

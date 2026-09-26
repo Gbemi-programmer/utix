@@ -6,6 +6,10 @@ export const newAccountId = seed(1).publicKey();
 export const fundedAccountId = seed(2).publicKey();
 export const rateLimitedAccountId = seed(3).publicKey();
 export const secretSeed = seed(4).secret();
+export const racedAccountId = seed(5).publicKey();
+export const rejectedAddressAccountId = seed(6).publicKey();
+export const timedOutAccountId = seed(7).publicKey();
+export const upstreamErrorAccountId = seed(8).publicKey();
 
 export const friendbotSuccess = {
   hash: "d".repeat(64),
@@ -13,6 +17,25 @@ export const friendbotSuccess = {
   successful: true
 };
 
-/** Friendbot's real 400 body when the account already exists. */
-export const alreadyFundedBody =
-  '{"status":400,"detail":"op_already_exists","extras":{"result_codes":{"operations":["op_already_exists"],"transaction":"tx_failed"}}}';
+const problem = (detail: string, extras?: Record<string, string>) =>
+  JSON.stringify({
+    type: "https://stellar.org/friendbot-errors/bad_request",
+    title: "Bad Request",
+    status: 400,
+    detail,
+    ...(extras ? { extras } : {})
+  });
+
+/** Friendbot's real 400 body when the account already holds the starting balance. */
+export const alreadyFundedBody = problem("account already funded to starting balance");
+
+/** Friendbot's real 400 body when the account was created mid-request. */
+export const accountRacedBody = problem("createAccountAlreadyExist (AAAAAAAAAAD////8AAAAAA==)");
+
+/** Friendbot's real 400 body when it rejects the `addr` parameter. */
+export const invalidAddressBody = problem("The request you sent was invalid in some way.", {
+  invalid_field: "addr",
+  reason: "invalid address: must be a valid G or C address"
+});
+
+export const PROBLEM_JSON = { "content-type": "application/problem+json; charset=utf-8" };

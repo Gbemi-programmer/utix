@@ -4,7 +4,8 @@ export const copy = {
   stroopsLabel: "Stroops",
   stroopsHint: "Whole stroops only — 10,000,000 stroops equal 1 XLM.",
   amountLabel: "Display amount",
-  amountHint: "Up to seven decimal places, matching Horizon balance strings.",
+  amountHint:
+    "Digits with a period for decimals (1234.5), up to seven decimal places, matching Horizon balance strings. No thousands separators.",
   maxExample: "Load int64 maximum",
   maxExampleHint: "9223372036854775807 stroops — the largest value Stellar stores.",
   submit: "Clear",
@@ -29,6 +30,12 @@ export const errorCopy: Record<
     title: "That value is not a valid number",
     description:
       "Stroops must be a whole number. Display amounts use digits and at most one decimal point."
+  },
+  grouping_separator: {
+    title: "Remove the separators",
+    description:
+      "Write the amount with a period for decimals and no thousands separators, for example 1234.5. A comma or space can mean either a decimal or a thousands separator depending on your region, so Utix does not guess.",
+    field: "amount"
   },
   too_many_decimals: {
     title: "Too many decimal places",

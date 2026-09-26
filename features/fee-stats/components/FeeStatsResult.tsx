@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatAmount, formatInteger } from "@/core/format/amount";
+import { formatDateTime } from "@/core/format/date";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/core/ui/Card";
 import { DataList } from "@/core/ui/DataList";
 import { Field } from "@/core/ui/Field";
@@ -95,11 +97,11 @@ export function FeeStatsResult({ summary }: { summary: FeeStatsSummary }) {
           <CardDescription>{recommendation.basis}</CardDescription>
         </CardHeader>
         <p className="font-mono text-2xl font-bold text-[#172033]">
-          {recommendation.amount ? recommendation.amount.stroops : "—"}
+          {recommendation.amount ? formatInteger(BigInt(recommendation.amount.stroops)) : "—"}
           <span className="ml-2 text-sm font-semibold text-[#68758a]">stroops</span>
         </p>
         {recommendation.amount ? (
-          <p className="mt-1 font-mono text-sm text-[#68758a]">{recommendation.amount.xlm} XLM</p>
+          <p className="mt-1 font-mono text-sm text-[#68758a]">{formatAmount(recommendation.amount.xlm)} XLM</p>
         ) : (
           <p className="mt-2 text-sm text-[#68758a]">{copy.calculatorUnavailable}</p>
         )}
@@ -134,10 +136,10 @@ export function FeeStatsResult({ summary }: { summary: FeeStatsSummary }) {
               <div>
                 <p className="text-sm font-semibold text-[#4e5c73]">{copy.calculatorTotalLabel}</p>
                 <p className="font-mono text-xl font-bold text-[#172033]">
-                  {totalFee.stroops}
+                  {formatInteger(BigInt(totalFee.stroops))}
                   <span className="ml-2 text-sm font-semibold text-[#68758a]">stroops</span>
                 </p>
-                <p className="mt-1 font-mono text-sm text-[#68758a]">{totalFee.xlm} XLM</p>
+                <p className="mt-1 font-mono text-sm text-[#68758a]">{formatAmount(totalFee.xlm)} XLM</p>
               </div>
             ) : null}
           </div>
@@ -158,7 +160,7 @@ export function FeeStatsResult({ summary }: { summary: FeeStatsSummary }) {
             { label: copy.minLabel, value: formatFee(summary.chargedMin) },
             { label: copy.modeLabel, value: formatFee(summary.chargedMode) },
             { label: copy.maxLabel, value: formatFee(summary.chargedMax) },
-            { label: copy.fetchedAtLabel, value: summary.fetchedAt.replace("T", " ").replace(/\.\d+Z$/, " UTC") }
+            { label: copy.fetchedAtLabel, value: formatDateTime(summary.fetchedAt) }
           ]}
         />
       </Card>

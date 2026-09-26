@@ -1,3 +1,4 @@
+import { formatUnixSeconds } from "@/core/format/date";
 import type {
   EnvelopeVariant,
   MemoSummary,
@@ -16,12 +17,7 @@ export function formatVariant(variant: EnvelopeVariant): string {
 
 /** Stellar time bounds are Unix seconds; 0 means "unbounded on this side". */
 export function formatTimeBound(seconds: string): string {
-  if (seconds === "0") return "Unbounded";
-
-  const value = Number(seconds);
-  if (!Number.isFinite(value)) return seconds;
-
-  return new Date(value * 1000).toISOString().replace("T", " ").replace(/\.\d+Z$/, " UTC");
+  return seconds === "0" ? "Unbounded" : formatUnixSeconds(seconds);
 }
 
 export function describeTimeBounds(bounds: TimeBoundsSummary | null): string {

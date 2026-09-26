@@ -89,11 +89,17 @@ describe("worker framework", () => {
     const job = framework.enqueue({ operation: "flaky.process", maxAttempts: 3 });
     framework.drainDueJobs(); // attempt 1 of 3 -> retrying
 
+    // `retry` is only legal from `retrying`, and the result carries the state.
     const reset = framework.retryJob(job.id);
-    expect(reset).toBeDefined();
-    expect(reset?.status).toBe("queued");
-    expect(reset?.attempts).toBe(0);
-    expect(reset?.nextAttemptAt).toBeUndefined();
+    expect(reset.ok).toBe(true);
+    if (!reset.ok) return;
+    expect(reset.value.status).toBe("queued");
+    expect(reset.value.attempts).toBe(0);
+    expect(reset.value.nextAttemptAt).toBeUndefined();
+    expect(framework.canTransition("queued", "retry")).toMatchObject({
+      ok: false,
+      code: "invalid_transition"
+    });
   });
 
   it("dedupeKey makes re-enqueueing idempotent while a job is pending", () => {

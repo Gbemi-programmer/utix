@@ -87,6 +87,6 @@ describe("isUnpinned", () => {
 
 describe("formatFetchedAt", () => {
   it("renders an ISO timestamp readably", () => {
-    expect(formatFetchedAt("2026-05-02T10:14:05.000Z")).toBe("2026-05-02 10:14:05 UTC");
+    expect(formatFetchedAt("2026-05-02T10:14:05.000Z")).toBe("May 2, 2026, 10:14:05 AM UTC");
   });
 });

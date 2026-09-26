@@ -1,28 +1,18 @@
 import { Networks } from "@stellar/stellar-sdk";
+import { formatAmount, formatInteger, stroopsToAmount } from "@/core/format/amount";
 import type { LayerKind, SignatureSummary } from "@/features/fee-bump-inspector/types";
 
-const STROOPS_PER_XLM = 10_000_000n;
-const XLM_DECIMALS = 7;
-
 /**
- * Converts a stroop count to its XLM string.
- *
- * Fees are 64-bit integers, so the conversion is done with `BigInt` and string
- * padding. Dividing by 1e7 in floating point silently loses stroops once the
- * amount passes `Number.MAX_SAFE_INTEGER`.
+ * Converts a stroop count to its exact seven-decimal XLM string. Fees are
+ * 64-bit integers, so this never divides in floating point.
  */
 export function stroopsToXlm(stroops: string): string {
-  const value = BigInt(stroops);
-  const negative = value < 0n;
-  const absolute = negative ? -value : value;
-  const whole = absolute / STROOPS_PER_XLM;
-  const fraction = (absolute % STROOPS_PER_XLM).toString().padStart(XLM_DECIMALS, "0");
-
-  return `${negative ? "-" : ""}${whole}.${fraction}`;
+  return stroopsToAmount(BigInt(stroops));
 }
 
 export function formatFee(stroops: string): string {
-  return `${stroops} stroops (${stroopsToXlm(stroops)} XLM)`;
+  const value = BigInt(stroops);
+  return `${formatInteger(value)} stroops (${formatAmount(value, { trimZeros: false })} XLM)`;
 }
 
 const KNOWN_NETWORKS: Record<string, string> = {

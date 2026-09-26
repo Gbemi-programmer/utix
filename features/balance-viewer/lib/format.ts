@@ -1,17 +1,7 @@
+import { amountToStroops, formatAmount } from "@/core/format/amount";
 import type { DisplayBalance } from "@/features/balance-viewer/types";
 
-/**
- * Formats a Stellar amount without going through `Number`.
- *
- * Stellar amounts have 7 decimal places and can exceed the safe integer range,
- * so parsing them as floats would silently lose precision.
- */
-export function formatAmount(value: string): string {
-  const [whole, fraction = ""] = value.split(".");
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const trimmed = fraction.replace(/0+$/, "");
-  return trimmed ? `${grouped}.${trimmed}` : grouped;
-}
+export { formatAmount };
 
 export function formatAssetLabel(balance: DisplayBalance): string {
   if (balance.kind === "native") return "XLM (native)";
@@ -39,13 +29,6 @@ export function totalLiabilities(balance: DisplayBalance): string | null {
   const buying = balance.buyingLiabilities;
   if (!selling && !buying) return null;
 
-  const toStroops = (value = "0") => {
-    const [whole, fraction = ""] = value.split(".");
-    return BigInt(whole || "0") * 10_000_000n + BigInt(fraction.padEnd(7, "0").slice(0, 7));
-  };
-
-  const total = toStroops(selling) + toStroops(buying);
-  const whole = total / 10_000_000n;
-  const fraction = (total % 10_000_000n).toString().padStart(7, "0");
-  return formatAmount(`${whole}.${fraction}`);
+  const total = (amountToStroops(selling ?? "0") ?? 0n) + (amountToStroops(buying ?? "0") ?? 0n);
+  return formatAmount(total);
 }

@@ -1,3 +1,4 @@
+import { formatAmount } from "@/core/format/amount";
 import { Card, CardHeader, CardTitle } from "@/core/ui/Card";
 import { CopyableValue } from "@/core/ui/CopyableValue";
 import { DataList } from "@/core/ui/DataList";
@@ -49,12 +50,16 @@ export function TrustlineCheckerResult({ result }: { result: TrustlineResult }) 
         <DataList
           items={[
             { label: "Asset", value: formatAssetIdentity(result.assetCode, result.issuerId), mono: true },
-            { label: "Balance", value: result.balance, mono: true },
+            { label: "Balance", value: formatAmount(result.balance), mono: true },
             { label: "Trust limit", value: formatLimit(result.limit) },
-            { label: copy.buyingLiabilitiesLabel, value: result.buyingLiabilities, mono: true },
+            {
+              label: copy.buyingLiabilitiesLabel,
+              value: formatAmount(result.buyingLiabilities),
+              mono: true
+            },
             {
               label: copy.remainingReceivingCapacityLabel,
-              value: result.remainingReceivingCapacity,
+              value: formatAmount(result.remainingReceivingCapacity),
               mono: true
             },
             {

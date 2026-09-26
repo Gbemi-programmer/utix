@@ -117,11 +117,26 @@ to do next.
 No user-facing text inside components. Tests import `copy` and assert against
 it, so wording changes never break the test suite.
 
-### 4. Amounts are never parsed as floats
+### 4. Amounts and dates go through `@/core/format`
 
-Stellar amounts have 7 decimal places and can exceed `Number.MAX_SAFE_INTEGER`.
-Use strings and `BigInt`. `formatAmount` in `features/balance-viewer` is the
-reference.
+Stellar amounts have 7 decimal places and can exceed `Number.MAX_SAFE_INTEGER`,
+so they are never parsed as floats. Every slice that accepts or displays an
+amount uses `@/core/format/amount`:
+
+- **Input** — `parseAmount` accepts one fixed, locale-independent grammar:
+  ASCII digits, an optional leading `-`, and `.` as the only decimal
+  separator, with at most seven decimals. A comma, space, apostrophe or
+  underscore is rejected with `grouping_separator` instead of being guessed at:
+  `1,234` is 1234 in en-US and 1.234 in de-DE. Map that code to copy telling
+  the user to write `1234.5`.
+- **Display** — `formatAmount` shows the value in the user's locale (grouping,
+  decimal separator, digit shapes) through `Intl.NumberFormat`, but only the
+  whole part goes through `Intl`, as a `BigInt`; the fraction digits are
+  appended unchanged, so no locale ever rounds a stroop away.
+
+Dates use `formatDateTime` / `formatUnixSeconds` from `@/core/format/date`:
+the user's locale decides the shape, and the time zone is always UTC and
+printed, so ledger times can be compared against explorers.
 
 ### 5. Four UI states, always
 
@@ -258,3 +273,21 @@ All four must pass, plus:
 That last line is the important one. If your pull request touches a shared
 file, something is wrong with the approach — say so in the issue rather than
 working around it.
+
+---
+
+## Changing this contract
+
+The reasons behind these rules are recorded as architecture decision records
+in [adr/](./adr/README.md) — in particular
+[0001](./adr/0001-vertical-feature-slices.md) (slices),
+[0002](./adr/0002-generated-gitignored-registry.md) (generated registry),
+[0003](./adr/0003-result-values-and-error-codes.md) (error codes),
+[0004](./adr/0004-slice-local-fixtures-and-network-boundary-mocks.md)
+(fixtures and MSW), [0005](./adr/0005-runtime-contract-migration-ledger.md)
+(runtime states) and [0006](./adr/0006-shared-amount-and-date-formatting.md)
+(amounts and dates).
+
+A pull request that changes this document — a rule, the layout, or what
+`verify:features` enforces — must add a new ADR or supersede an existing one in
+the same pull request. See [adr/README.md](./adr/README.md) for the format.

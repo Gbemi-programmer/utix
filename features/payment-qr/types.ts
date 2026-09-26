@@ -22,6 +22,7 @@ export type PaymentQrErrorCode =
   | "invalid_destination"
   | "empty_amount"
   | "invalid_amount"
+  | "amount_has_separator"
   | "amount_too_precise"
   | "empty_asset_code"
   | "invalid_asset_code"

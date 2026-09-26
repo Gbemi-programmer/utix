@@ -1,4 +1,5 @@
 import { err, ok, type Result } from "@/core/result/result";
+import { amountToStroops, formatAmount } from "@/core/format/amount";
 import { horizonUrl } from "@/core/horizon/client";
 import type { StellarNetwork } from "@/core/network/types";
 import { copy } from "@/features/orderbook-viewer/copy";
@@ -6,7 +7,6 @@ import { toOrderbookViewerErrorCode } from "@/features/orderbook-viewer/lib/orde
 import { assetQuery, parseOrderbookViewerInput } from "@/features/orderbook-viewer/schema";
 import type { OrderbookAsset, OrderbookLevel, OrderbookViewerErrorCode, OrderbookViewerInput, OrderbookViewerResult } from "@/features/orderbook-viewer/types";
 
-const AMOUNT_SCALE = 10_000_000n;
 const DECIMAL = /^\d+(?:\.\d+)?$/;
 
 interface Rational { n: bigint; d: bigint; }
@@ -16,8 +16,7 @@ function gcd(a: bigint, b: bigint): bigint { let x = a < 0n ? -a : a; let y = b 
 function reduce(n: bigint, d: bigint): Rational { if (d < 0n) [n, d] = [-n, -d]; const g = gcd(n, d); return { n: n / g, d: d / g }; }
 function compare(a: Rational, b: Rational): number { const left = a.n * b.d; const right = b.n * a.d; return left < right ? -1 : left > right ? 1 : 0; }
 function subtract(a: Rational, b: Rational): Rational { return reduce(a.n * b.d - b.n * a.d, a.d * b.d); }
-function parseAmount(value: unknown): bigint | null { if (typeof value !== "string" || !/^\d+(?:\.\d{1,7})?$/.test(value)) return null; const [whole, fraction = ""] = value.split("."); return BigInt(whole) * AMOUNT_SCALE + BigInt(fraction.padEnd(7, "0")); }
-function formatAmount(value: bigint): string { const whole = value / AMOUNT_SCALE; const fraction = (value % AMOUNT_SCALE).toString().padStart(7, "0").replace(/0+$/, ""); return fraction ? `${whole}.${fraction}` : `${whole}`; }
+function parseAmount(value: unknown): bigint | null { const stroops = typeof value === "string" ? amountToStroops(value) : null; return stroops !== null && stroops >= 0n ? stroops : null; }
 function decimalRational(value: string): Rational | null { if (!DECIMAL.test(value)) return null; const [whole, fraction = ""] = value.split("."); const denominator = 10n ** BigInt(fraction.length); return reduce(BigInt(whole) * denominator + BigInt(fraction || "0"), denominator); }
 function parsePrice(level: RawLevel): Rational | null {
   const raw = level.price_r ?? (typeof level.price === "object" ? level.price : undefined);

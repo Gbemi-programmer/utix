@@ -77,6 +77,6 @@ export const errorCopy: Record<ErrorCode,{title:string;description:string}> = {
   },
   "invalid_limit": {
     "title": "Invalid limit",
-    "description": "Enter a nonnegative decimal with at most seven places, no exponent, and at most 922337203685.4775807."
+    "description": "Enter a nonnegative decimal with a period as the decimal point, no thousands separators, at most seven places, no exponent, and at most 922337203685.4775807."
   }
 };

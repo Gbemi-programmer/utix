@@ -1,5 +1,6 @@
 import { StrKey } from "@stellar/stellar-sdk";
 import { err, ok, type Result } from "@/core/result/result";
+import { parseAmount, type AmountParseError } from "@/core/format/amount";
 import type {
   PaymentQrErrorCode,
   PaymentQrField,
@@ -7,9 +8,16 @@ import type {
 } from "@/features/payment-qr/types";
 
 const ASSET_CODE = /^[A-Za-z0-9]{1,12}$/;
-/** Stellar amounts carry at most 7 decimal places (1 stroop = 0.0000001 XLM). */
-const AMOUNT = /^\d+(\.\d+)?$/;
-const MAX_DECIMALS = 7;
+
+/** The amount goes into the URI exactly as typed, so it must be canonical. */
+const AMOUNT_ERRORS: Record<AmountParseError, PaymentQrErrorCode> = {
+  empty: "empty_amount",
+  grouping_separator: "amount_has_separator",
+  invalid_format: "invalid_amount",
+  too_many_decimals: "amount_too_precise",
+  negative: "invalid_amount",
+  out_of_range: "invalid_amount"
+};
 
 /** SEP-0007 limits: `memo` as text is a 28-byte memo, `msg` is 300 characters. */
 export const MEMO_MAX_BYTES = 28;
@@ -20,6 +28,7 @@ export const FIELD_OF_CODE: Record<PaymentQrErrorCode, PaymentQrField | null> = 
   invalid_destination: "destination",
   empty_amount: "amount",
   invalid_amount: "amount",
+  amount_has_separator: "amount",
   amount_too_precise: "amount",
   empty_asset_code: "assetCode",
   invalid_asset_code: "assetCode",
@@ -54,9 +63,9 @@ export function parsePaymentRequest(
   if (!destination) return err("empty_destination");
   if (!StrKey.isValidEd25519PublicKey(destination)) return err("invalid_destination");
 
-  if (!amount) return err("empty_amount");
-  if (!AMOUNT.test(amount) || Number(amount) <= 0) return err("invalid_amount");
-  if ((amount.split(".")[1] ?? "").length > MAX_DECIMALS) return err("amount_too_precise");
+  const stroops = parseAmount(amount);
+  if (!stroops.ok) return err(AMOUNT_ERRORS[stroops.code]);
+  if (stroops.value === 0n) return err("invalid_amount");
 
   // A text memo is limited by bytes, not characters: emoji and accented
   // letters cost more than one byte each.

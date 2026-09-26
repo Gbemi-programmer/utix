@@ -37,6 +37,11 @@ export const errorCopy: Record<PaymentQrErrorCode, { title: string; description:
     title: "That amount is not valid",
     description: "Enter a positive number using digits and at most one decimal point."
   },
+  amount_has_separator: {
+    title: "Remove the separators from the amount",
+    description:
+      "Use a period for decimals and no thousands separators, for example 1234.5. A comma can mean either depending on the region, and a payment amount must not be guessed."
+  },
   amount_too_precise: {
     title: "Too many decimal places",
     description: "Stellar amounts carry at most 7 decimal places — one stroop is 0.0000001."

@@ -15,7 +15,7 @@ describe("formatTimeBound", () => {
   });
 
   it("renders a Unix second as a readable UTC timestamp", () => {
-    expect(formatTimeBound("1700000000")).toBe("2023-11-14 22:13:20 UTC");
+    expect(formatTimeBound("1700000000")).toBe("Nov 14, 2023, 10:13:20 PM UTC");
   });
 });
 
@@ -26,7 +26,7 @@ describe("describeTimeBounds", () => {
 
   it("shows both ends of a bounded window", () => {
     expect(describeTimeBounds({ minTime: "0", maxTime: "1700000000" })).toBe(
-      "Unbounded → 2023-11-14 22:13:20 UTC"
+      "Unbounded → Nov 14, 2023, 10:13:20 PM UTC"
     );
   });
 });

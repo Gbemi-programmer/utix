@@ -3,7 +3,7 @@
 import { Check, Copy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/core/ui/Button";
-import { copyText } from "@/core/lib/clipboard";
+import { tryCopyText } from "@/core/lib/clipboard";
 import { truncateMiddle } from "@/core/lib/strings";
 import { cn } from "@/core/lib/cn";
 
@@ -31,14 +31,15 @@ export function CopyableValue({
   }, []);
 
   const handleCopy = useCallback(async () => {
-    try {
-      await copyText(value);
+    const outcome = await tryCopyText(value);
+    if (timer.current) clearTimeout(timer.current);
+    if (outcome === "copied") {
       setState("copied");
-    } catch {
+      timer.current = setTimeout(() => setState("idle"), 1600);
+    } else {
+      // Keep the recovery hint up until the next attempt so it can be read.
       setState("failed");
     }
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setState("idle"), 1600);
   }, [value]);
 
   return (
@@ -63,8 +64,15 @@ export function CopyableValue({
       </Button>
       <span className="sr-only" role="status" aria-live="polite">
         {state === "copied" ? `${label} copied to clipboard` : ""}
-        {state === "failed" ? `Could not copy ${label}` : ""}
       </span>
+      {state === "failed" ? (
+        <span role="alert" className="text-xs text-muted-foreground">
+          Could not copy {label}. Select it and press Ctrl+C (⌘C on Mac):{" "}
+          <span className="select-all break-all font-mono" data-testid="copy-fallback-value">
+            {value}
+          </span>
+        </span>
+      ) : null}
     </span>
   );
 }

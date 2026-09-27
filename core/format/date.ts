@@ -1,4 +1,4 @@
-import type { Locales } from "@/core/format/amount";
+import { safeLocales, type Locales } from "@/core/format/amount";
 
 /**
  * Formats ledger and request timestamps for display.
@@ -14,7 +14,7 @@ function dateTimeFormat(locales: Locales): Intl.DateTimeFormat {
   const key = locales === undefined ? "" : [locales].flat().join(",");
   let formatter = formatters.get(key);
   if (!formatter) {
-    formatter = new Intl.DateTimeFormat(locales as string | string[] | undefined, {
+    formatter = new Intl.DateTimeFormat(safeLocales(locales), {
       dateStyle: "medium",
       timeStyle: "long",
       timeZone: "UTC"

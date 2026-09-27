@@ -98,3 +98,31 @@ describe("formatInteger", () => {
     expect(formatInteger(1017700, "de-DE")).toBe("1.017.700");
   });
 });
+
+describe("formatAmount locale edge cases", () => {
+  it("keeps zero, negatives and full stroop precision exact", () => {
+    expect(formatAmount("0", { locale: "en-US" })).toBe("0");
+    expect(formatAmount("0.0000000", { locale: "en-US", trimZeros: false })).toBe("0.0000000");
+    expect(formatAmount("0.0000001", { locale: "en-US" })).toBe("0.0000001");
+    expect(formatAmount("-0.0000001", { locale: "en-US" })).toBe("-0.0000001");
+    expect(formatAmount(-INT64_MAX, { locale: "en-US" })).toBe("-922,337,203,685.4775807");
+  });
+
+  it("uses native digits for non-Latin locales without rounding", () => {
+    const arabic = formatAmount("1234.5000001", { locale: "ar-EG" });
+    expect(arabic).toContain("٠٠٠٠٠١");
+    expect(arabic).not.toMatch(/[0-9]/);
+    expect(formatAmount("12.3456789", { locale: "hi-IN-u-nu-deva" })).toBe("१२.३४५६७८९");
+  });
+
+  it("keeps an RTL negative sign attached to the value", () => {
+    const shown = formatAmount("-1.5", { locale: "he-IL" });
+    expect(shown).toMatch(/1\.5/);
+    expect(shown).toMatch(/-|−/);
+  });
+
+  it("falls back to the default locale for a malformed tag instead of throwing", () => {
+    expect(() => formatAmount("1.5", { locale: "not_a locale!" })).not.toThrow();
+    expect(formatInteger(1234n, "!!")).toBe(formatInteger(1234n));
+  });
+});

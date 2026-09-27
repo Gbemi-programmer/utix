@@ -32,3 +32,20 @@ describe("formatUnixSeconds", () => {
     expect(formatUnixSeconds("18446744073709551615", "en-US")).toBe("18446744073709551615");
   });
 });
+
+describe("formatDateTime edge cases", () => {
+  it("returns invalid timestamps unchanged", () => {
+    expect(formatDateTime("not-a-date", "en-US")).toBe("not-a-date");
+    expect(formatDateTime(Number.NaN, "en-US")).toBe("NaN");
+    expect(formatDateTime(new Date("x"), "en-US")).toBe("Invalid Date");
+  });
+
+  it("always formats in UTC regardless of locale", () => {
+    expect(formatDateTime("2024-01-01T00:30:00Z", "en-US")).toContain("UTC");
+    expect(formatDateTime("2024-01-01T00:30:00Z", "ar-EG")).toContain("٢٠٢٤");
+  });
+
+  it("falls back to the default locale for a malformed tag", () => {
+    expect(formatDateTime("2024-01-01T00:00:00Z", "@@bad")).toBe(formatDateTime("2024-01-01T00:00:00Z"));
+  });
+});

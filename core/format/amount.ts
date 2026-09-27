@@ -20,6 +20,20 @@ export const INT64_MIN = -9_223_372_036_854_775_808n;
 export type Locales = string | readonly string[] | undefined;
 
 /**
+ * Fallback policy: a malformed locale tag makes `Intl` throw, so it is dropped
+ * and the runtime default locale is used instead. An unsupported-but-valid tag
+ * is already negotiated down by `Intl` itself. Formatting never throws.
+ */
+export function safeLocales(locales: Locales): string | string[] | undefined {
+  if (locales === undefined) return undefined;
+  try {
+    return Intl.getCanonicalLocales(locales as string | string[]);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * The only accepted input shape: ASCII digits, an optional leading `-`, and an
  * optional `.` followed by at least one digit. `.` is always the decimal
  * separator, whatever the user's locale.
@@ -111,7 +125,7 @@ function localeSymbols(locales: Locales): LocaleSymbols {
   const cached = symbolsCache.get(key);
   if (cached) return cached;
 
-  const requested = locales as string | string[] | undefined;
+  const requested = safeLocales(locales);
   const integer = new Intl.NumberFormat(requested, { maximumFractionDigits: 0 });
   const parts = new Intl.NumberFormat(requested, { minimumFractionDigits: 1 }).formatToParts(-1);
   const integerIndex = parts.findIndex((part) => part.type === "integer");

@@ -7,9 +7,10 @@ import {
   NETWORK_LABELS,
   NETWORK_PASSPHRASES,
   NETWORK_STORAGE_KEY,
-  SOROBAN_RPC_URLS
+  SOROBAN_RPC_URLS,
+  resolveNetwork
 } from "@/core/network/config";
-import { isStellarNetwork, type StellarNetwork } from "@/core/network/types";
+import type { StellarNetwork } from "@/core/network/types";
 import {
   PRUNE_HORIZON_CLIENTS_DELAY_MS,
   PRUNE_HORIZON_CLIENTS_OP,
@@ -50,8 +51,7 @@ function subscribe(onStoreChange: () => void): () => void {
 
 function getSnapshot(): StellarNetwork {
   try {
-    const stored = window.localStorage.getItem(NETWORK_STORAGE_KEY);
-    return isStellarNetwork(stored) ? stored : DEFAULT_NETWORK;
+    return resolveNetwork(window.localStorage.getItem(NETWORK_STORAGE_KEY), DEFAULT_NETWORK);
   } catch {
     // Private windows and blocked site data both throw here.
     return DEFAULT_NETWORK;

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { findFeature } from "@/core/registry/registry";
+import { findFeature, loadFeaturePanel } from "@/core/registry/registry";
 import { featureSlugs, findManifest } from "@/core/registry/manifests";
 import { FeatureShell } from "@/core/ui/FeatureShell";
 
@@ -40,8 +40,24 @@ export default async function ToolPage({ params }: RouteParams) {
 
   if (!feature) notFound();
 
-  const { manifest, load } = feature;
-  const Panel = await load();
+  const { manifest } = feature;
+  const loaded = await loadFeaturePanel(feature);
+
+  if (!loaded.ok) {
+    return (
+      <FeatureShell manifest={manifest}>
+        <div role="alert" data-feature-load-error={loaded.detail?.slug}>
+          <p className="font-medium">This tool could not be loaded.</p>
+          <p className="text-sm">
+            A newer version may have been deployed or your connection dropped. Reload the page
+            to try again.
+          </p>
+        </div>
+      </FeatureShell>
+    );
+  }
+
+  const Panel = loaded.value;
 
   return (
     <FeatureShell manifest={manifest}>

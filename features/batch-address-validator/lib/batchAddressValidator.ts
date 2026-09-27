@@ -1,5 +1,26 @@
-import { validateAddress } from "@/features/address-validator/lib/addressValidator";
-import { shouldRedact } from "@/features/address-validator/lib/addressValidator.errors";
+import { StrKey } from "@stellar/stellar-sdk";
+import { shouldRedact } from "@/features/batch-address-validator/lib/batchAddressValidator.errors";
+
+function validateAddress({ address }: { address: string }): {
+  valid: boolean;
+  code: import("@/features/batch-address-validator/types").AddressValidationCode;
+  address: string;
+} {
+  const prefix = address[0]?.toUpperCase() ?? "";
+  if (prefix === "S") {
+    return { valid: false, code: "secret_seed_rejected", address: "" };
+  }
+  if (!["G", "M", "C", "T", "X", "P"].includes(prefix)) {
+    return { valid: false, code: "unknown_prefix", address };
+  }
+  if (prefix !== "G") {
+    return { valid: false, code: "unsupported_kind", address };
+  }
+  if (!StrKey.isValidEd25519PublicKey(address)) {
+    return { valid: false, code: "bad_checksum_or_length", address };
+  }
+  return { valid: true, code: "valid", address };
+}
 import type {
   BatchAddressValidatorInput,
   BatchAddressValidatorResult,

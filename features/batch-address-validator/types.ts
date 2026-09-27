@@ -1,4 +1,10 @@
-import type { AddressValidationCode } from "@/features/address-validator/types";
+export type AddressValidationCode =
+  | "valid"
+  | "empty_input"
+  | "secret_seed_rejected"
+  | "unknown_prefix"
+  | "bad_checksum_or_length"
+  | "unsupported_kind";
 
 export interface BatchAddressValidatorInput {
   lines: string[];

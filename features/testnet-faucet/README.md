@@ -50,3 +50,13 @@ and real XLM is not something a faucet hands out.
 Funding an account needs only its **public** address. A value starting with `S`
 is a secret seed and is rejected by the same checksum rule that rejects any
 non-`G` value, before any request is made.
+
+## Accessibility & Focus Management
+
+- **Network Change Focus Transitions**:
+  - Selecting Mainnet triggers a prominent warning banner explaining that Friendbot is testnet-only. Focus is automatically moved to the warning banner (`role="status"`, `tabIndex={-1}`) upon switching network during an active session, ensuring screen-reader users are immediately informed that the tool does not operate on mainnet.
+  - Switching back to Testnet automatically focuses the primary account address input field so the user can continue their workflow seamlessly.
+- **Form State Announcements**:
+  - When account funding fails or encounters an existing account, focus shifts to the error status message so the explanation is read aloud by screen-readers.
+  - On funding success, focus moves smoothly to the confirmation result container displaying transaction details and block explorer links.
+  - Normal typing or state changes do not disrupt active element focus.

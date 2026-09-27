@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/core/ui/Button";
 import { Field } from "@/core/ui/Field";
 import { Input, Select } from "@/core/ui/Input";
+import { useDynamicRevealFocus } from "@/core/hooks/useDynamicRevealFocus";
 import { copy } from "@/features/payment-qr/copy";
 import type { RawPaymentForm } from "@/features/payment-qr/schema";
 import type { PaymentQrField } from "@/features/payment-qr/types";
@@ -19,6 +20,13 @@ export function PaymentQrForm({
   errorField: PaymentQrField | null;
   errorMessage: string | null;
 }) {
+  const {
+    targetRef: assetCodeRef,
+    triggerRef: assetKindRef,
+    triggerReveal: revealIssuedFields,
+    triggerDismiss: dismissIssuedFields
+  } = useDynamicRevealFocus<HTMLInputElement, HTMLSelectElement>();
+
   const [form, setForm] = useState<RawPaymentForm>({
     destination: "",
     amount: "",
@@ -33,6 +41,16 @@ export function PaymentQrForm({
     setForm((current) => ({ ...current, [key]: value }));
 
   const errorFor = (field: PaymentQrField) => (errorField === field ? errorMessage : null);
+
+  const handleAssetKindChange = (next: string) => {
+    const nextKind = next === "issued" ? "issued" : "native";
+    set("assetKind", nextKind);
+    if (nextKind === "issued") {
+      revealIssuedFields();
+    } else {
+      dismissIssuedFields();
+    }
+  };
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -83,11 +101,10 @@ export function PaymentQrForm({
         <Field label={copy.assetKindLabel}>
           {({ inputId }) => (
             <Select
+              ref={assetKindRef}
               id={inputId}
               value={form.assetKind}
-              onChange={(event) =>
-                set("assetKind", event.target.value === "issued" ? "issued" : "native")
-              }
+              onChange={(event) => handleAssetKindChange(event.target.value)}
             >
               <option value="native">{copy.assetNative}</option>
               <option value="issued">{copy.assetIssued}</option>
@@ -97,10 +114,14 @@ export function PaymentQrForm({
       </div>
 
       {form.assetKind === "issued" ? (
-        <div className="grid gap-4 sm:grid-cols-[minmax(0,10rem)_1fr]">
+        <fieldset
+          aria-label={copy.assetIssued}
+          className="grid gap-4 sm:grid-cols-[minmax(0,10rem)_1fr]"
+        >
           <Field label={copy.assetCodeLabel} error={errorFor("assetCode")} required>
             {({ inputId, describedBy, invalid, required }) => (
               <Input
+                ref={assetCodeRef}
                 id={inputId}
                 aria-describedby={describedBy}
                 aria-invalid={invalid}
@@ -130,7 +151,7 @@ export function PaymentQrForm({
               />
             )}
           </Field>
-        </div>
+        </fieldset>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">

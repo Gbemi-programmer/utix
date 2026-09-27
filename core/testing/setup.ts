@@ -20,16 +20,33 @@ beforeAll(() => {
     });
   }
 
-  if (!window.ResizeObserver) {
+    if (!window.ResizeObserver) {
     window.ResizeObserver = class {
       observe() {}
       unobserve() {}
       disconnect() {}
     } as unknown as typeof ResizeObserver;
   }
+
+  const storage = new Map<string, string>();
+  const mockStorage = {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => storage.set(key, String(value)),
+    removeItem: (key: string) => storage.delete(key),
+    clear: () => storage.clear(),
+    get length() {
+      return storage.size;
+    },
+    key: (index: number) => Array.from(storage.keys())[index] ?? null
+  };
+  Object.defineProperty(window, "localStorage", {
+    value: mockStorage,
+    writable: true,
+    configurable: true
+  });
 });
 
 afterEach(() => {
   cleanup();
-  window.localStorage.clear();
+  window.localStorage?.clear?.();
 });

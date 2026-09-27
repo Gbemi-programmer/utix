@@ -33,3 +33,14 @@ rendered against the right input rather than in an anonymous banner.
 
 This tool creates a *request*. It never moves funds, never asks for a secret
 key, and the payer's wallet still has to approve and sign the payment.
+
+## Accessibility & Focus Management
+
+- **Dynamic Field Reveal**: Switching the asset type to an issued asset dynamically reveals the asset code, issuer account, and optional limit fields wrapped within an accessible `<fieldset>` grouping (`aria-label="Issued asset details"`).
+- **Predictable Focus Transitions**:
+  - Selecting "Issued asset" smoothly shifts focus directly to the revealed `Asset code` input so keyboard and screen-reader users can immediately begin entering asset parameters without tab-navigation disorientation.
+  - Switching back to "Native XLM" cleanly returns focus to the `Asset kind` selector, preventing focus loss to `<body>`.
+  - Focus transitions are strictly bound to discrete user interactions (`useDynamicRevealFocus`) and are never triggered on background re-renders or typing in other fields.
+- **Screen-Reader Announcements**:
+  - Dynamically revealed sections announce their group context via accessible fieldset labelling.
+  - Form validation errors and live status updates use `role="status"` and `aria-live="polite"` regions so assistive technology alerts users to state transitions without interrupting keyboard flows.

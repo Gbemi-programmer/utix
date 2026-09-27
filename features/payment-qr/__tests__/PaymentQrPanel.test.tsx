@@ -25,13 +25,21 @@ describe("PaymentQrPanel", () => {
     expect(screen.getByText(/web\+stellar:pay\?/)).toBeInTheDocument();
   });
 
-  it("reveals the issuer fields only for an issued asset", async () => {
+  it("reveals the issuer fields only for an issued asset with proper focus management", async () => {
     const { user } = renderFeature(<PaymentQrPanel />);
 
+    const assetKindSelect = screen.getByLabelText(copy.assetKindLabel);
     expect(screen.queryByLabelText(copy.assetCodeLabel)).not.toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText(copy.assetKindLabel), "issued");
-    expect(screen.getByLabelText(copy.assetCodeLabel)).toBeInTheDocument();
+
+    await user.selectOptions(assetKindSelect, "issued");
+    const assetCodeInput = screen.getByLabelText(copy.assetCodeLabel);
+    expect(assetCodeInput).toBeInTheDocument();
     expect(screen.getByLabelText(copy.assetIssuerLabel)).toBeInTheDocument();
+    expect(document.activeElement).toBe(assetCodeInput);
+
+    await user.selectOptions(assetKindSelect, "native");
+    expect(screen.queryByLabelText(copy.assetCodeLabel)).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(assetKindSelect);
   });
 
   it("builds an issued-asset request end to end", async () => {

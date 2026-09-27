@@ -12,7 +12,8 @@ export default defineConfig([
       "out/**",
       ".grantfox-agents/**",
       ".drips-agents/**",
-      "worktrees/**"
+      "worktrees/**",
+      "inqutum/**"
     ]
   }
 ]);

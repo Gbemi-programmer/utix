@@ -37,7 +37,13 @@ class MemoryStorage implements NotificationStorage {
 
 function browserStorage(): NotificationStorage {
   try {
-    if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+    if (
+      typeof window !== "undefined" &&
+      window.localStorage &&
+      typeof window.localStorage.getItem === "function"
+    ) {
+      return window.localStorage;
+    }
   } catch {
     return new MemoryStorage();
   }

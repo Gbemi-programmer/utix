@@ -174,17 +174,15 @@ ${entries}
 }
 
 export function renderPanels(slugs, schemaVersion = REGISTRY_SCHEMA_VERSION) {
-  const imports = slugs
+  const entries = slugs
     .map(
       (slug) =>
-        `  "${slug}": () => import("@/features/${slug}/panel").then((module) => module.default as ComponentType)`
+        `  "${slug}": () => import("@/features/${slug}/panel").then((mod) => mod.default as ComponentType)`
     )
     .join(",\n");
 
   return `${BANNER}
 import type { ComponentType } from "react";
-
-${imports}
 
 export const generatedRegistrySchemaVersion = ${schemaVersion} as const;
 export const generatedPanels: Record<string, ComponentType> = {
@@ -201,7 +199,7 @@ export function renderRegistry(slugs, schemaVersion = REGISTRY_SCHEMA_VERSION) {
   const entries = slugs
     .map(
       (slug) =>
-        `  { manifest: ${identifier(slug)}, load: async () => { const module = await import("@/features/${slug}/panel"); return module.default as ComponentType; } }`
+        `  { manifest: ${identifier(slug)}, load: async () => { const mod = await import("@/features/${slug}/panel"); return mod.default as ComponentType; } }`
     )
     .join(",\n");
 

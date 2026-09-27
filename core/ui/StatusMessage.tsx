@@ -1,10 +1,10 @@
 import { AlertCircle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
-import type { ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/core/lib/cn";
 
 export type StatusType = "success" | "error" | "warning" | "info";
 
-export interface StatusMessageProps {
+export interface StatusMessageProps extends HTMLAttributes<HTMLDivElement> {
   type: StatusType;
   title: string;
   description?: ReactNode;
@@ -34,35 +34,38 @@ const icons = {
  * `data-contract-state` mirrors the status type for the shared test harness
  * (`@/core/testing/contract`).
  */
-export function StatusMessage({
-  type,
-  title,
-  description,
-  action,
-  className
-}: StatusMessageProps) {
-  const Icon = icons[type];
-  const isError = type === "error";
+export const StatusMessage = forwardRef<HTMLDivElement, StatusMessageProps>(
+  function StatusMessage(
+    { type, title, description, action, className, tabIndex, ...rest }: StatusMessageProps,
+    ref
+  ) {
+    const Icon = icons[type];
+    const isError = type === "error";
 
-  return (
-    <div
-      data-contract-state={type}
-      role={isError ? "alert" : "status"}
-      aria-live={isError ? "assertive" : "polite"}
-      className={cn(
-        "flex gap-3 rounded-lg border p-4 shadow-[4px_4px_0_rgba(255,139,122,0.12)]",
-        styles[type],
-        className
-      )}
-    >
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/60">
-        <Icon className="h-5 w-5" aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-extrabold">{title}</p>
-        {description ? <div className="mt-1 text-sm text-[#4e5c73]">{description}</div> : null}
-        {action ? <div className="mt-3">{action}</div> : null}
+    return (
+      <div
+        ref={ref}
+        tabIndex={tabIndex}
+        data-contract-state={type}
+        role={isError ? "alert" : "status"}
+        aria-live={isError ? "assertive" : "polite"}
+        className={cn(
+          "flex gap-3 rounded-lg border p-4 shadow-[4px_4px_0_rgba(255,139,122,0.12)] focus:outline-none focus:ring-2 focus:ring-[#47a8c7]",
+          styles[type],
+          className
+        )}
+        {...rest}
+      >
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/60">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-extrabold">{title}</p>
+          {description ? <div className="mt-1 text-sm text-[#4e5c73]">{description}</div> : null}
+          {action ? <div className="mt-3">{action}</div> : null}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+

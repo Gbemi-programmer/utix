@@ -13,7 +13,7 @@ const budget = {
 };
 
 const eagerImportMatches = [...source.matchAll(/import\s+.*?\s+from\s+["']@\/features\/[^"]+\/panel["']/g)];
-const lazyLoadMatches = [...source.matchAll(/load:\s*async\s*\(\)\s*=>\s*\{\s*const\s+module\s*=\s*await\s+import\(\s*["']@\/features\/[^"]+\/panel["']\s*\)/g)];
+const lazyLoadMatches = [...source.matchAll(/load:\s*async\s*\(\)\s*=>\s*\{\s*const\s+(?:module|mod)\s*=\s*await\s+import\(\s*["']@\/features\/[^"]+\/panel["']\s*\)/g)];
 
 if (eagerImportMatches.length > budget.maxEagerFeatureImports) {
   console.error(

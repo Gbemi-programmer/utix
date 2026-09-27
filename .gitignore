@@ -26,6 +26,7 @@ playwright-report/
 
 # local agent checkouts of other repositories
 worktrees/
+inqutum/
 
 # vercel
 .vercel

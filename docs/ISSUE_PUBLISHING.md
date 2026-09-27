@@ -1,8 +1,14 @@
 # Publishing contributor issues
 
-RevyHubX issues are product specifications for external contributors. The
+Utix issues are product specifications for external contributors. The
 maintainer prepares and publishes them; contributors implement them. An issue
 must never be pre-solved in the repository before it is offered.
+
+## Contributor workflow policy
+
+- **Branch and PR targets**: All contribution pull requests must target the `dev` branch (NOT `main`).
+- **No pre-assignment**: Direct maintainer or contributor pre-assignment of issues is not allowed before an open pull request is submitted with passing local checks.
+- **Local checks**: Contributors must run the verification suite before opening a PR (`npm run check`, `npm run verify:features`).
 
 ## Release policy
 
@@ -18,16 +24,19 @@ must never be pre-solved in the repository before it is offered.
 The stable wave order lives in `scripts/issue-status.mjs`. Detailed product
 requirements live in `scripts/issue-catalog.mjs`.
 
+The active project repository is `Parcel-Protocol/utix`.
+All contributor-issue commands target `Parcel-Protocol/utix` by default or use a validated `GH_REPO` environment variable.
+
 The active GrantFox project, repository, campaign and required labels live in
 `scripts/grantfox-config.mjs`. For the current campaign they are:
 
-- Project: `RevenantLabs` (`16987fb9-18ec-4555-acd9-dbf2c8ec9074`)
-- Repository: `RevyHub` (`1302133299`)
-- Campaign: `Third Campaign` (`624dee9c-2bc5-48fc-ae07-3c2c2a8262e8`)
-- Required labels: `GrantFox OSS`, `Maybe Rewarded`, `Third Campaign`
+- Project: `Parcel-Protocol`
+- Repository: `Parcel-Protocol/utix`
+- Active Campaign: `Stellar Wave`
+- Required labels: `GrantFox OSS`, `Maybe Rewarded`, `Stellar Wave`
 
 Do not reuse labels from a completed campaign such as
-`Official Campaign | FWC26`; GrantFox campaign visibility follows the active
+`Third Campaign` or `Official Campaign | FWC26`; GrantFox campaign visibility follows the active
 campaign attachment and its corresponding label.
 
 ## Preview the next batch
@@ -39,7 +48,7 @@ node scripts/create-issues.mjs --json > next-five.json
 ```
 
 The JSON contains the exact title, Markdown body, labels, wave position and
-slug for each issue. Review all five payloads before publishing.
+slug for each issue. Review all five payloads before publishing. The command displays the resolved repository (`Parcel-Protocol/utix`) before any actions.
 
 ## Publish through GrantFox
 

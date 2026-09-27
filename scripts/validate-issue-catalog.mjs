@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { catalog, categoryLabels } from "./issue-catalog.mjs";
 import { grantfoxConfig } from "./grantfox-config.mjs";
+import { DEFAULT_REPO, LEGACY_REPOS, resolveRepository } from "./repo-config.mjs";
 import {
   advancedWaveSlugs,
   advancedWaveTwoSlugs,
@@ -49,6 +50,11 @@ export function validateCatalog() {
     !grantfoxConfig.requiredLabels.includes(grantfoxConfig.campaignName)
   ) {
     fail("GrantFox labels must include GrantFox OSS, Maybe Rewarded and the active campaign name");
+  }
+
+  const targetRepo = resolveRepository(process.env.GH_REPO);
+  if (LEGACY_REPOS.includes(targetRepo) || targetRepo.toLowerCase().includes("revyhub")) {
+    fail(`Configured target repository "${targetRepo}" cannot be a legacy RevyHub repository`);
   }
 
   const slugs = new Set();

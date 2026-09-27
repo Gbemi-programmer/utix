@@ -191,10 +191,17 @@ class WebhookVerifier {
 
 interface DeliveryAttempt extends WebhookDeliveryAttempt {}
 
+interface WebhookRequest {
+  body: {
+    signature?: string;
+    [key: string]: unknown;
+  } | null;
+}
+
 export const webhookVerifier = new WebhookVerifier();
 
 export function createWebhookMiddleware(verifier: WebhookVerifier) {
-  return (req: any, secret: string) => {
+  return (req: WebhookRequest, secret: string) => {
     const payload = req.body;
 
     if (!payload || !payload.signature) {

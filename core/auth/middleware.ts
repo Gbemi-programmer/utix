@@ -52,7 +52,7 @@ export function getAuthContext(): AuthContext {
 /**
  * Higher-order function that wraps server actions with permission checks.
  */
-export function withPermission<T extends (...args: any[]) => any>(
+export function withPermission<T extends (...args: unknown[]) => unknown>(
   permission: Permission,
   handler: T
 ): T {

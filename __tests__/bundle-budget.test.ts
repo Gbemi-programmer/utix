@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 describe('Bundle budget configuration', () => {
@@ -15,10 +15,11 @@ describe('Bundle budget configuration', () => {
 
   it('baseline contains valid structure', () => {
     const baselinePath = join(process.cwd(), 'bundle-baseline.json');
-    
+
     if (existsSync(baselinePath)) {
-      const baseline = require(baselinePath);
-      
+      const baselineContent = readFileSync(baselinePath, 'utf-8');
+      const baseline = JSON.parse(baselineContent);
+
       for (const [feature, data] of Object.entries(baseline)) {
         expect(typeof feature).toBe('string');
         expect(typeof data.totalSize).toBe('number');

@@ -120,15 +120,17 @@ export function networkProfileHandlers(profileId: NetworkProfileId) {
       () => {
         return HttpResponse.json({
           _links: { self: { href: "" }, next: { href: "" }, prev: { href: "" } },
-          _embedded: { records: fixtures.accountResponse.balances
-            .filter((b: { asset_type?: string }) => b.asset_type !== "native")
-            .map((b: { asset_code?: string; asset_issuer?: string; asset_type?: string }) => ({
-              asset_type: b.asset_type,
-              asset_code: b.asset_code,
-              asset_issuer: b.asset_issuer,
-              balance: "0.0000000",
-              limit: "922337203685.4775807",
-            })),
+          _embedded: {
+            records: fixtures.accountResponse.balances
+              .filter((b: { asset_type?: string }) => b.asset_type !== "native")
+              .map((b: { asset_code?: string; asset_issuer?: string; asset_type?: string }) => ({
+                asset_type: b.asset_type,
+                asset_code: b.asset_code,
+                asset_issuer: b.asset_issuer,
+                balance: "0.0000000",
+                limit: "922337203685.4775807",
+              })),
+          },
           _records: [],
         }, { headers: profileHeader });
       }

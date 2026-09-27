@@ -272,7 +272,7 @@ class CrossDeviceSessionManager {
         deviceAValue: conflict.device1Value,
         deviceBValue: conflict.device2Value,
         resolution,
-        strategy: resolveStrategy as any,
+        strategy: resolveStrategy as 'last-write-wins' | 'device-priority' | 'manual',
         resolvedBy: 'system',
       });
     }
@@ -280,7 +280,7 @@ class CrossDeviceSessionManager {
     return resolutions;
   }
 
-  private navigateToPath(obj: any, path: string): [any, string | null] {
+  private navigateToPath(obj: Record<string, unknown>, path: string): [Record<string, unknown>, string | null] {
     const parts = path.split('.');
     let current = obj;
 
@@ -288,7 +288,7 @@ class CrossDeviceSessionManager {
       if (!(parts[i] in current)) {
         current[parts[i]] = {};
       }
-      current = current[parts[i]];
+      current = current[parts[i]] as Record<string, unknown>;
     }
 
     return [current, parts[parts.length - 1]];

@@ -24,6 +24,7 @@ Infrastructure docs: [Telemetry](./docs/TELEMETRY.md) ·
 [Workers](./docs/WORKERS.md) · [Exports](./docs/EXPORTS.md) ·
 [Record lifecycles](./docs/LIFECYCLE.md) ·
 [Idempotency](./docs/IDEMPOTENCY.md) ·
+[Operation recovery](./docs/OPERATION_RECOVERY.md) ·
 [Reconciliation](./docs/RECONCILIATION.md) ·
 [Audit trail](./docs/AUDIT.md) ·
 [API Contract](./docs/API_CONTRACT.md).

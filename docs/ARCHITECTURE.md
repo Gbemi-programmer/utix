@@ -20,6 +20,7 @@ scripts/     registry generation, scaffolding, contract verification
 | `core/lifecycle` | Record state machines: declared states, legal transitions, rejected moves |
 | `core/idempotency` | Idempotency keys, persisted outcomes and replay protection |
 | `core/reconciliation` | Read-only dry-run reconciliation of stored records against derived state |
+| `core/operations` | Recovery for interrupted multi-step flows: checkpoints, resume, stuck-operation diagnostics |
 | `core/audit` | Append-only audit trail for sensitive user and maintainer actions |
 | `core/export` | Privacy-safe, scoped, schema-versioned data exports |
 | `core/contract` | API contract schemas and drift detection |

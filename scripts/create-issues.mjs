@@ -24,8 +24,11 @@ import {
 } from "./issue-status.mjs";
 import { validateCatalog } from "./validate-issue-catalog.mjs";
 
+import { DEFAULT_REPO, LEGACY_REPOS, resolveRepository } from "./repo-config.mjs";
+export { DEFAULT_REPO, LEGACY_REPOS, resolveRepository };
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const repo = process.env.GH_REPO || "RevenantLabs/RevyHub";
+export const repo = resolveRepository(process.env.GH_REPO);
 
 const argv = process.argv.slice(2);
 const targetArg = argv.indexOf("--target");
@@ -229,6 +232,7 @@ function labelsFor(tool) {
 
 function main() {
   validateCatalog();
+  console.log(`[create-issues] Target repository: ${repo}`);
   // GrantFox issues have to be registered against a campaign, so they are
   // published through GrantFox prepare/publish rather than created directly.
   // Drips registers issues through its own wave-program API afterwards, so the
@@ -336,4 +340,6 @@ function main() {
   );
 }
 
-main();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}

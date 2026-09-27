@@ -62,8 +62,6 @@ export function TestnetFaucetPanel() {
         <TestnetFaucetForm
           ref={formInputRef}
           onSubmit={submit}
-          pending={state.status === "funding"}
-          onSubmit={submit}
           pending={state.status === "funding" || state.status === "waiting"}
         />
       </Card>
